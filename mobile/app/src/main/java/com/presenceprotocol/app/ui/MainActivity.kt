@@ -245,6 +245,18 @@ private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
     ) {
         Text(text = if (isMining) "Stop Mining" else "Start Mining", fontSize = 16.sp)
     }
+
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = if (isMining) "Mining: ACTIVE" else "Mining: IDLE",
+        fontSize = 13.sp,
+        color = if (isMining) OlivePale else Gray,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        textAlign = TextAlign.Center
+    )
 }
 
 @Suppress("UNUSED_PARAMETER")
@@ -462,6 +474,25 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
                         fontSize = 13.sp,
                         color = Mid
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Button(
+                        onClick = { },
+                        enabled = false,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Olive,
+                            contentColor = GoldPale,
+                            disabledContainerColor = Olive.copy(alpha = 0.45f),
+                            disabledContentColor = GoldPale.copy(alpha = 0.75f)
+                        ),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = "Connect Wallet",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -542,7 +573,6 @@ private fun DeveloperPanel(uiState: DashboardUiState, dismiss: () -> Unit) {
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 private fun DebugRow(label: String, value: String) {
     Row(
@@ -551,5 +581,7 @@ private fun DebugRow(label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = label, fontSize = 12.sp, color = Gray)
+        Text(text = value, fontSize = 12.sp, color = Dark, fontWeight = FontWeight.Medium)
     }
 }
+
