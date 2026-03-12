@@ -195,6 +195,17 @@ class PresenceHandshakeCoordinator(
             return
         }
 
+        val hasRealResponderProof =
+            resolvedDeviceBSignature != "device_b_sig_placeholder" &&
+            resolvedDeviceBSignature != "device_b_sig_missing"
+
+        if (!hasRealResponderProof) {
+            Log.e(TAG, "PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=$rewardPeerId encounterId=${ticket.encounterId}")
+            Log.d(TAG, "PIPE_LEDGER_CREDIT_BLOCKED peer=$rewardPeerId encounterId=${ticket.encounterId} stage=placeholder_proof")
+            activePeer.compareAndSet(peerId, null)
+            return
+        }
+
         miningLedger.recordEncounter()
         lastLedgerCreditMs[rewardPeerId] = now
         peers[peerId]?.lastSuccessMs = now
