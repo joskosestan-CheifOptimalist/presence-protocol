@@ -1,93 +1,50 @@
-# QA Status Summary
+# QA Status
 
-| Run ID  | Timestamp | Branch                    | HEAD Commit                           | Result    | Evidence Files                                     | Learnings       |
-|---------|-----------|---------------------------|---------------------------------------|-----------|----------------------------------------------------|------------------|
-| RUN_000 | [timestamp] | phase2a-gatt-transport    | 78b0a676bee9527c0e8a777bee247f536805db44 | [STATUS] |
-| RUN_001 | [timestamp] | phase2a-gatt-transport    | 78b0a676bee9527c0e8a777bee247f536805db44 | [STATUS] |
-| RUN_002 | [timestamp] | phase2a-gatt-transport    | 78b0a676bee9527c0e8a777bee247f536805db44 | [STATUS] |
+---
 
-## RUN_003 Acceptance Criteria
-- Scan matching must trigger on discovery.
-- GATT connection attempt must succeed once a match occurs.
-- Connected state, Service discovery, and optional Hello/Reply must be logged.
+## Environment Validation — Samsung Test Devices
 
+**This section is part of the test harness, not optional troubleshooting.**
 
-## RUN_006
-- Status: PARTIAL PASS
-- Type: observability + callback instrumentation
-- Result:
-  - handshake lifecycle logging added
-  - callback chain confirmed beyond `CONNECT_START`
-  - asymmetric / `BOTH` mode issues still present
-  - S23 client observed `status=133` in some attempts
-- Conclusion: diagnostic success, not yet final clean reference pass
+Samsung One UI aggressively restricts background services even when a foreground service is correctly declared. Without the setting below, One UI may kill BLE scan loops and foreground services, producing false negatives that look like code regressions.
 
+### Samsung Battery Optimization Prerequisite
 
-## RUN_007
-- Status: PASS
-- Type: role-separated validation
-- Server device: S23
-- Client device: A17
-- Evidence:
-  - `docs/qa_logs/RUN_007/run007b_s23.log`
-  - `docs/qa_logs/RUN_007/run007b_a17.log`
-- Key result: end-to-end handshake confirmed in role-separated mode
-- Note: RUN_005 remains partial-pass historical evidence; RUN_006 is observability partial-pass; RUN_007 is the first clean role-separated full pass
+Apply to **both** test devices before any foreground-service or background BLE test:
 
-## RUN_008
-- Status: PASS
-- Type: EncounterTicket generation validation
-- Server device: S23
-- Client device: A17
-- Evidence:
-  - docs/qa_logs/RUN_008/run008_s23.log
-  - docs/qa_logs/RUN_008/run008_a17.log
-- Key result:
-  - PP_HANDSHAKE HANDSHAKE_COMPLETE observed
-  - PP_TICKET GENERATED observed on live device flow
-- Conclusion:
-  - first verified bridge from handshake completion into EncounterTicket generation
+1. Open **Settings**
+2. Go to **Apps**
+3. Select **Presence Protocol**
+4. Open **Battery**
+5. Set to **Unrestricted**
 
-## RUN_009
-- Status: PASS
-- Type: full EncounterTicket JSON logging validation
-- Server device: S23
-- Client device: A17
-- Evidence:
-  - docs/qa_logs/RUN_009/run009d_s23.log
-  - docs/qa_logs/RUN_009/run009d_a17.log
-- Key result:
-  - PP_HANDSHAKE HANDSHAKE_COMPLETE observed
-  - PP_TICKET GENERATED observed
-  - PP_TICKET JSON observed
-- Conclusion:
-  - first verified full EncounterTicket JSON logging run
+> **Classification: Environment validation.**
+> A failed background test where this setting was not confirmed is an invalid test result. Do not draw conclusions about service stability, BLE reliability, or patch regressions until this prerequisite is verified.
 
-## RUN_010
-- Status: PASS
-- Type: first real-field EncounterTicket validation
-- Server device: S23
-- Client device: A17
-- Evidence:
-  - docs/qa_logs/RUN_010/run010_s23.log
-  - docs/qa_logs/RUN_010/run010_a17.log
-- Key result:
-  - PP_TICKET JSON observed with real helloHash, real replyHash, and real appVersion
-- Open issue:
-  - S23 still shows missing chars path after services discovered
-- Conclusion:
-  - first verified real-field EncounterTicket pass
+---
 
-## Protocol Progression Snapshot
+## Standard QA Run Sheet
 
-RUN_010
-Repo-evidenced full EncounterTicket proof run.
+Required before any 30-minute or background-presence test:
 
-RUN_012
-Repeatable EncounterTicket generation confirmed, but deviceBSignature still placeholder.
+- [ ] Samsung battery mode set to **Unrestricted** on both devices (see above)
+- [ ] Foreground service notification is visible in the status bar
+- [ ] App build is current — confirm APK matches the target commit
+- [ ] Bluetooth is enabled on both devices
+- [ ] All required BLE permissions are granted (verify in Settings → Apps → Permissions)
+- [ ] Screen-off / background test **start time is logged**
+- [ ] Results checked at fixed intervals: **5 min**, **15 min**, **30 min**
 
-RUN_013
-Bilateral signed EncounterTicket generation confirmed with real deviceBSignature on both devices.
+---
 
-Current QA Conclusion:
-Presence Protocol has achieved repeatable bilateral signed EncounterTicket generation.
+## Phase 1 — BLE Discovery (Scan + Advertise + UI peer counter)
+- Date: 2026-02-24 (Auckland)
+- Devices:
+  - Samsung S23 (R5CR700RAQF) — PASS
+  - Samsung A17 (R5GYC0FZ6RY) — PASS
+- Human test:
+  - Walked ~10m away: peers dropped to 0.
+  - Returned to range: peers returned to 1.
+- Log evidence:
+  - docs/qa_logs/phase1_s23.log
+  - docs/qa_logs/phase1_a17.log
