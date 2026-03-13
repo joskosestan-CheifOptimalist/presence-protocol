@@ -19,14 +19,14 @@
    - On first launch, grant requested permissions (Bluetooth Scan/Connect/Advertise on Android 12+, Fine Location on Android ≤11).
 5. **Workspace**
    - Repo root: `/home/josko/.openclaw/workspace/presence-protocol-repo`
-   - JAVA_HOME set to Corretto 17: `/home/josko/.openclaw/workspace/amazon-corretto-17.0.18.9.1-linux-x64`
+   - JAVA_HOME set to Corretto 17: `/home/josko/.jdk/jdk-17.0.11+9`
 
 ## B. Build & Install Steps
 1. Ensure only ONE device is connected via USB (`adb devices`). Disconnect the other.
 2. Build the APK from repo root:
    ```bash
    cd /home/josko/.openclaw/workspace/presence-protocol-repo/mobile
-   JAVA_HOME=/home/josko/.openclaw/workspace/amazon-corretto-17.0.18.9.1-linux-x64 ./gradlew assembleDebug
+   JAVA_HOME=/home/josko/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug
    ```
 3. Output APK path: `app/build/outputs/apk/debug/app-debug.apk`.
 
