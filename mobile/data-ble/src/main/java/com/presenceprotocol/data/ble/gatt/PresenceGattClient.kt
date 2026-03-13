@@ -40,6 +40,7 @@ class PresenceGattClient(
     private var lastHelloHash: String? = null
     private var lastReplyHash: String? = null
     private var lastDeviceBEphemeralKey: String? = null
+    private var lastDeviceBPublicKeyBase64: String? = null
     private var lastDeviceBSignature: String? = null
     private var lastRemoteAppInstanceId: String? = null
     private var missingCharsRetryUsed: Boolean = false
@@ -220,7 +221,8 @@ class PresenceGattClient(
 
                     lastRemoteAppInstanceId = reply.appInstanceId
                     lastDeviceBEphemeralKey = reply.appInstanceId
-                    lastDeviceBSignature = "device_b_sig_placeholder"
+                    lastDeviceBPublicKeyBase64 = Base64.getEncoder().encodeToString(reply.serverPublicKey)
+                    lastDeviceBSignature = Base64.getEncoder().encodeToString(reply.signature)
                     lastReplyHash = sha256Hex(value)
                 }
 
@@ -236,6 +238,7 @@ class PresenceGattClient(
                     replyHash = lastReplyHash ?: "reply_hash_missing",
                     appVersion = appVersion,
                     deviceBEphemeralKey = canonicalPeerKey,
+                    deviceBPublicKeyBase64 = lastDeviceBPublicKeyBase64,
                     deviceBSignature = lastDeviceBSignature ?: "device_b_sig_missing"
                 )
                 cleanup("reply received")
@@ -294,6 +297,7 @@ class PresenceGattClient(
         lastHelloHash = null
         lastReplyHash = null
         lastDeviceBEphemeralKey = null
+        lastDeviceBPublicKeyBase64 = null
         lastDeviceBSignature = null
         lastRemoteAppInstanceId = null
         missingCharsRetryUsed = false
