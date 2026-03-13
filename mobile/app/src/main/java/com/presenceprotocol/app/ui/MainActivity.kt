@@ -147,7 +147,9 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 PresencePulseHero(uiState)
                 PrimaryToggle(isMining = uiState.isMining) { viewModel.toggleMining() }
                 VerifiedCard(uiState)
+                Spacer(modifier = Modifier.height(12.dp))
                 YieldCard(uiState)
+                Spacer(modifier = Modifier.height(12.dp))
                 MiningCountersCard(uiState)
                 SettlementLayerCard(uiState)
                 Text(
@@ -220,6 +222,12 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Peers Nearby", fontSize = 14.sp)
+                    Text(
+                        text = uiState.peersNearby.toString(),
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GoldBright
+                    )
                     Text(text = uiState.statusText, fontSize = 12.sp, color = Gray)
                 }
             }
@@ -246,7 +254,7 @@ private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
         Text(text = if (isMining) "Stop Mining" else "Start Mining", fontSize = 16.sp)
     }
 
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(4.dp))
     Text(
         text = if (isMining) "Mining: ACTIVE" else "Mining: IDLE",
         fontSize = 13.sp,
@@ -265,24 +273,52 @@ private fun VerifiedCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(168.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Peers Seen (10m)", fontSize = 14.sp, modifier = Modifier.weight(1f))
-                Text(text = "Rolling", fontSize = 12.sp, color = Gray)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Discovery",
+                    fontSize = 14.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "Rolling",
+                    fontSize = 12.sp,
+                    color = Gray
+                )
             }
-            Row {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Seen", fontSize = 12.sp)
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Pending", fontSize = 12.sp)
-                }
-            }
-            Text(text = "Based on BLE discovery", fontSize = 11.sp, color = Gray)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Seen (10m): ${uiState.peersSeenLast10Minutes}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Dark
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Nearby: ${uiState.peersNearby}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Dark
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Based on BLE discovery",
+                fontSize = 11.sp,
+                color = Gray
+            )
         }
     }
 }
@@ -320,15 +356,19 @@ private fun MiningCountersCard(uiState: DashboardUiState) {
                 Text(text = "Mining Counters", fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(text = "Protocol Epoch ${uiState.epoch}", fontSize = 12.sp, color = Gray)
             }
+            Spacer(modifier = Modifier.height(10.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "This Epoch", fontSize = 12.sp)
+                    Text(text = uiState.encountersThisEpoch.toString(), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = "This Epoch", fontSize = 12.sp, color = Gray)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Total", fontSize = 12.sp)
+                    Text(text = uiState.totalEncounters.toString(), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = "Total", fontSize = 12.sp, color = Gray)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Pending", fontSize = 12.sp)
+                    Text(text = uiState.pendingEncounters.toString(), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = "Pending", fontSize = 12.sp, color = Gray)
                 }
             }
         }

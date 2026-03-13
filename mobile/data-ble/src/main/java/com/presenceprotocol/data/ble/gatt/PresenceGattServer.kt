@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.presenceprotocol.data.ble.PresenceHandshakeCoordinator
+import com.presenceprotocol.core.crypto.EphemeralKeys
 import com.presenceprotocol.core.common.cbor.PresenceCborPackets
 import com.presenceprotocol.core.common.config.TransportConfig
 import com.presenceprotocol.core.common.config.TransportMode
@@ -31,6 +32,8 @@ class PresenceGattServer(
     private var replyCharacteristic: BluetoothGattCharacteristic? = null
     private val notifyEnabled = mutableSetOf<String>()
     private val preparedHelloWrites = mutableMapOf<String, MutableList<ByteArray>>()
+    private var responderEphemeralKeyPair: java.security.KeyPair? = null
+    private var responderEphemeralPublicBase64: String? = null
 
     private val bluetoothManager: BluetoothManager? =
         context.getSystemService(BluetoothManager::class.java)
@@ -117,12 +120,21 @@ class PresenceGattServer(
                 TAG,
                 "HELLO_RX addr=${device.address} bytes=${value.size} ver=${hello.version} sid=${hello.sessionId.size} nonce=${hello.nonce.size}"
             )
+            ensureResponderEphemeral()
+            val responderPair = responderEphemeralKeyPair ?: error("responder key missing")
+            val responderPublicBytes = java.util.Base64.getDecoder().decode(
+                responderEphemeralPublicBase64 ?: error("responder public missing")
+            )
+            val responderSignatureBytes = java.util.Base64.getDecoder().decode(
+                EphemeralKeys.signBase64(responderPair.private, value)
+            )
+
             val reply = ReplyPacket(
                 version = hello.version,
                 sessionId = hello.sessionId,
                 nonce = hello.nonce,
-                serverPublicKey = ByteArray(32),
-                signature = ByteArray(64),
+                serverPublicKey = responderPublicBytes,
+                signature = responderSignatureBytes,
                 statusCode = 0,
                 appId = "presence-protocol",
                 appInstanceId = getAppInstanceId()
@@ -149,6 +161,15 @@ class PresenceGattServer(
                 "HELLO_RX decode failed from=${device.address} err=${t.message} bytes=${value.size} hex=" +
                     value.joinToString("") { "%02x".format(it) }
             )
+        }
+    }
+
+
+    private fun ensureResponderEphemeral() {
+        if (responderEphemeralKeyPair == null || responderEphemeralPublicBase64 == null) {
+            val (pair, pub) = EphemeralKeys.generate()
+            responderEphemeralKeyPair = pair
+            responderEphemeralPublicBase64 = pub
         }
     }
 

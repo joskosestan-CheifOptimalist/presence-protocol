@@ -7,6 +7,9 @@ import android.bluetooth.BluetoothDevice
 import android.os.SystemClock
 import android.util.Log
 import com.presenceprotocol.domain.MiningLedger
+import java.security.KeyFactory
+import java.security.spec.X509EncodedKeySpec
+import java.util.Base64
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
@@ -111,7 +114,7 @@ class PresenceHandshakeCoordinator(
         Log.d(TAG, "PIPE_NOTIFY_RECEIVED peer=$peerId stage=notify_received")
     }
 
-    fun markComplete(peerId: String, helloHash: String = "hello_hash_placeholder", replyHash: String = "reply_hash_placeholder", appVersion: String = "dev", deviceBEphemeralKey: String = peerId, deviceBSignature: String = "device_b_sig_placeholder", handshakeTimestampMs: Long = System.currentTimeMillis()) {
+    fun markComplete(peerId: String, helloHash: String = "hello_hash_placeholder", replyHash: String = "reply_hash_placeholder", appVersion: String = "dev", deviceBEphemeralKey: String = peerId, deviceBPublicKeyBase64: String? = null, deviceBSignature: String = "device_b_sig_placeholder", handshakeTimestampMs: Long = System.currentTimeMillis()) {
         val now = SystemClock.elapsedRealtime()
         val rewardPeerId = deviceBEphemeralKey
         peers[peerId]?.apply {
@@ -159,8 +162,17 @@ class PresenceHandshakeCoordinator(
             EphemeralKeys.verifyBase64(it.public, helloHash.toByteArray(Charsets.UTF_8), deviceASignature)
         } ?: false
 
-        val deviceBSignatureValid = localEphemeralKeyPair?.let {
-            EphemeralKeys.verifyBase64(it.public, replyHash.toByteArray(Charsets.UTF_8), resolvedDeviceBSignature)
+        val responderPublicKey = try {
+            deviceBPublicKeyBase64?.let {
+                KeyFactory.getInstance("EC").generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(it)))
+            }
+        } catch (t: Throwable) {
+            Log.e(TAG, "PP_VERIFY responder_public_key_decode_failed peer=$peerId err=${t.message}")
+            null
+        }
+
+        val deviceBSignatureValid = responderPublicKey?.let {
+            EphemeralKeys.verifyBase64(it, replyHash.toByteArray(Charsets.UTF_8), resolvedDeviceBSignature)
         } ?: false
 
         Log.e(TAG, "PP_VERIFY deviceASignatureValid=$deviceASignatureValid peer=$peerId")
@@ -197,11 +209,19 @@ class PresenceHandshakeCoordinator(
 
         val hasRealResponderProof =
             resolvedDeviceBSignature != "device_b_sig_placeholder" &&
-            resolvedDeviceBSignature != "device_b_sig_missing"
+            resolvedDeviceBSignature != "device_b_sig_missing" &&
+            !deviceBPublicKeyBase64.isNullOrBlank()
 
         if (!hasRealResponderProof) {
             Log.e(TAG, "PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=$rewardPeerId encounterId=${ticket.encounterId}")
             Log.d(TAG, "PIPE_LEDGER_CREDIT_BLOCKED peer=$rewardPeerId encounterId=${ticket.encounterId} stage=placeholder_proof")
+            activePeer.compareAndSet(peerId, null)
+            return
+        }
+
+        if (!deviceBSignatureValid) {
+            Log.e(TAG, "PP_SUPPRESS ledger_credit_blocked_invalid_responder_proof peer=$rewardPeerId encounterId=${ticket.encounterId}")
+            Log.d(TAG, "PIPE_LEDGER_CREDIT_BLOCKED peer=$rewardPeerId encounterId=${ticket.encounterId} stage=invalid_responder_proof")
             activePeer.compareAndSet(peerId, null)
             return
         }
