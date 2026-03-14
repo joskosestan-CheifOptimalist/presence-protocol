@@ -89,14 +89,14 @@ class MainActivity : ComponentActivity() {
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             val granted = result.values.all { it }
             if (granted) {
-                dashboardViewModel.ensureDiscoveryStarted()
+                PresenceMiningService.start(this@MainActivity)
             } else {
                 Toast.makeText(this, "Presence Protocol requires Bluetooth permissions", Toast.LENGTH_LONG).show()
             }
         }
         setContent { PresenceApp(dashboardViewModel) }
         if (hasBlePermissions()) {
-            dashboardViewModel.ensureDiscoveryStarted()
+            PresenceMiningService.start(this)
         } else {
             permissionLauncher.launch(requiredPermissions())
         }
@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        dashboardViewModel.stopDiscovery()
+        // Discovery continues in PresenceMiningService — do not stop here
     }
 
     private fun hasBlePermissions(): Boolean =

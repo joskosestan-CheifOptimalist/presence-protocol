@@ -11,7 +11,12 @@ import com.presenceprotocol.domain.InMemoryMiningLedger
 import com.presenceprotocol.domain.SyncCoordinator
 
 object DashboardViewModelClient {
-    fun default(): DashboardViewModel {
+    @Volatile private var instance: DashboardViewModel? = null
+
+    fun default(): DashboardViewModel =
+        instance ?: synchronized(this) { instance ?: create().also { instance = it } }
+
+    private fun create(): DashboardViewModel {
         val context = PresenceApp.appContext
         val ledger = InMemoryMiningLedger()
         val encounterStore = FileEncounterStore(context)
