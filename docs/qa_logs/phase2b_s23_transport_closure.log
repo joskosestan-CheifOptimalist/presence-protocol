@@ -1,0 +1,74 @@
+--------- beginning of main
+03-14 14:15:58.332 19565 19565 E PP_BLE  : VM: toggle handler entered
+03-14 14:15:58.332 19565 19565 E PP_BLE  : VM: BLE_ROLE=SERVER_ONLY next=false
+03-14 14:15:58.332 19565 19565 E PP_BLE  : VM: toggle OFF -> disabling server + discovery
+03-14 14:15:58.343 19565 19565 D PresenceGatt: Presence GATT server stopped
+03-14 14:15:58.598 19565 19565 E PP_BLE  : VM: toggle handler entered
+03-14 14:15:58.598 19565 19565 E PP_BLE  : VM: BLE_ROLE=SERVER_ONLY next=true
+03-14 14:15:58.599 19565 19565 E PP_BLE  : VM: starting GATT SERVER + DISCOVERY
+03-14 14:15:58.605 19565 19565 D PresenceGatt: GattServer addService ok=true service=7d3a2d6b-9b7a-4f2a-9e5e-0c9d6f1b1c01
+03-14 14:15:58.605 19565 19565 D PresenceGatt: Presence GATT server started
+03-14 14:15:59.142 19565 19614 D PresenceGatt: onConnectionStateChange device=5C:36:34:6A:ED:B0 status=0 newState=2
+03-14 14:15:59.576 19565 19614 D PresenceGatt: CCCD device=5C:36:34:6A:ED:B0 enabled=true
+03-14 14:15:59.683 19565 19614 D PresenceGatt: HELLO_WRITE_REQ addr=5C:36:34:6A:ED:B0 prepared=false responseNeeded=false offset=0 bytes=215
+03-14 14:15:59.685 19565 19614 D PresenceGatt: HELLO_RX addr=5C:36:34:6A:ED:B0 bytes=215 ver=1 sid=16 nonce=32
+03-14 14:15:59.698 19565 19614 D PresenceGatt: REPLY_TX addr=5C:36:34:6A:ED:B0 ok=true bytes=312
+03-14 14:15:59.700 19565 19614 E PresenceHandshake: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=5C:36:34:6A:ED:B0 rewardPeer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:15:59.701 19565 19614 E PresenceHandshake: PP_HANDSHAKE DEVICE_B_SIGNATURE peer=5C:36:34:6A:ED:B0 value=MEYCIQDlEwCBt7f0NzI1FBapTFYa6Z9C9JnAPuP4MUc/tKT0WwIhAMCRcK/CDppYnwpsDzI2hmIkLosZLV2qwsSOv5TSL/Iw
+03-14 14:15:59.702 19565 19614 E PresenceHandshake: PP_VERIFY deviceASignatureValid=true peer=5C:36:34:6A:ED:B0
+03-14 14:15:59.702 19565 19614 E PresenceHandshake: PP_VERIFY deviceBSignatureValid=false peer=5C:36:34:6A:ED:B0
+03-14 14:15:59.704 19565 19614 E PresenceHandshake: PP_TICKET GENERATED encounterId=158fca42-75da-2d49-2596-f813ae68d763 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:15:59.704 19565 19614 E PresenceHandshake: PP_TICKET JSON {"encounterId":"158fca42-75da-2d49-2596-f813ae68d763","deviceAEphemeralKey":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh3MlZGP4p+Coo/gvkq5+GNwTLbPTzglLcjpAsb1l4EhfMqet9WMNwdTt4MJOGsD1VoVmH93htw2GLkp2cYY0Gw==","deviceBEphemeralKey":"8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d","helloHash":"3641e7cd0920b323fb7a01df4f3a226b970cde043f866b92805575fe1495855c","replyHash":"f811759a7384b96080398c1b1ea818f05bd80a2cc4c4a57c327af1d0615eb14d","handshakeTimestamp":1773450959000,"heartbeatId":118230063,"epochId":9852505,"heartbeatIndexInEpoch":3,"nonce":"940f3f29-3eb4-4364-8808-1d63d329d3ff","protocolVersion":"presence_v1","appVersion":"0.1-server","deviceASignature":"MEQCIFSmZ8D0XGS5ADed7eAauazdfXmApUBxhAJgHQUzA36yAiBSPs3oqQYl/yQFVQWk4A+XnrORJwAV3iqOu/vuCXUPFA==","deviceBSignature":"MEYCIQDlEwCBt7f0NzI1FBapTFYa6Z9C9JnAPuP4MUc/tKT0WwIhAMCRcK/CDppYnwpsDzI2hmIkLosZLV2qwsSOv5TSL/Iw"}
+03-14 14:15:59.706 19565 19614 E PresenceHandshake: PP_TICKET_PERSISTED encounterId=158fca42-75da-2d49-2596-f813ae68d763 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d ok=true
+03-14 14:15:59.706 19565 19614 E PresenceHandshake: PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d encounterId=158fca42-75da-2d49-2596-f813ae68d763
+03-14 14:15:59.821 19565 19614 D PresenceGatt: RESULT_RX addr=5C:36:34:6A:ED:B0 bytes=2
+03-14 14:15:59.821 19565 19614 E PresenceGatt: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=5C:36:34:6A:ED:B0
+03-14 14:16:00.804 19565 19583 D PresenceGatt: onConnectionStateChange device=5C:36:34:6A:ED:B0 status=0 newState=0
+03-14 14:16:29.813 19565 20064 D PresenceGatt: onConnectionStateChange device=4F:FC:05:2E:97:01 status=0 newState=2
+03-14 14:16:30.097 19565 20064 D PresenceGatt: CCCD device=4F:FC:05:2E:97:01 enabled=true
+03-14 14:16:30.196 19565 20064 D PresenceGatt: HELLO_WRITE_REQ addr=4F:FC:05:2E:97:01 prepared=false responseNeeded=false offset=0 bytes=215
+03-14 14:16:30.198 19565 20064 D PresenceGatt: HELLO_RX addr=4F:FC:05:2E:97:01 bytes=215 ver=1 sid=16 nonce=32
+03-14 14:16:30.205 19565 20064 D PresenceGatt: REPLY_TX addr=4F:FC:05:2E:97:01 ok=true bytes=312
+03-14 14:16:30.207 19565 20064 E PresenceHandshake: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=4F:FC:05:2E:97:01 rewardPeer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:16:30.207 19565 20064 E PresenceHandshake: PP_HANDSHAKE DEVICE_B_SIGNATURE peer=4F:FC:05:2E:97:01 value=MEUCIQDpVpl2eI6IP5JhUFFtvi1P2yWKrs4UJr87m6drd3h6vQIgX0pO/+9jCWMm0r5laCL6U29Ler7A0SKkB3TlMFnTMms=
+03-14 14:16:30.208 19565 20064 E PresenceHandshake: PP_VERIFY deviceASignatureValid=true peer=4F:FC:05:2E:97:01
+03-14 14:16:30.208 19565 20064 E PresenceHandshake: PP_VERIFY deviceBSignatureValid=false peer=4F:FC:05:2E:97:01
+03-14 14:16:30.209 19565 20064 E PresenceHandshake: PP_TICKET GENERATED encounterId=00b888fc-d77b-b9df-4474-a6251c64f019 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:16:30.209 19565 20064 E PresenceHandshake: PP_TICKET JSON {"encounterId":"00b888fc-d77b-b9df-4474-a6251c64f019","deviceAEphemeralKey":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh3MlZGP4p+Coo/gvkq5+GNwTLbPTzglLcjpAsb1l4EhfMqet9WMNwdTt4MJOGsD1VoVmH93htw2GLkp2cYY0Gw==","deviceBEphemeralKey":"8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d","helloHash":"2b2cc2ccac97ceb5e0dcf54355c5a5481fb6d2b914fdbedf3bbd634547aca3bd","replyHash":"9a7c85fbeda54834b769e27068c32e1180272c0b3b47fc47844632fa38203d78","handshakeTimestamp":1773450989000,"heartbeatId":118230065,"epochId":9852505,"heartbeatIndexInEpoch":5,"nonce":"562d2247-8ebf-4b8f-a2df-643f268e7fe9","protocolVersion":"presence_v1","appVersion":"0.1-server","deviceASignature":"MEUCIDs2ov0m2EtCb+C4+zWLtl45w8+rqjxoe4EGzKb5B8bSAiEA1JX0sFTMYGyU8efJOEjjJdlaL6fTIOCyY+2/svDy1Xo=","deviceBSignature":"MEUCIQDpVpl2eI6IP5JhUFFtvi1P2yWKrs4UJr87m6drd3h6vQIgX0pO/+9jCWMm0r5laCL6U29Ler7A0SKkB3TlMFnTMms="}
+03-14 14:16:30.210 19565 20064 E PresenceHandshake: PP_TICKET_PERSISTED encounterId=00b888fc-d77b-b9df-4474-a6251c64f019 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d ok=true
+03-14 14:16:30.210 19565 20064 E PresenceHandshake: PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d encounterId=00b888fc-d77b-b9df-4474-a6251c64f019
+03-14 14:16:30.290 19565 20064 D PresenceGatt: RESULT_RX addr=4F:FC:05:2E:97:01 bytes=2
+03-14 14:16:30.290 19565 20064 E PresenceGatt: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=4F:FC:05:2E:97:01
+03-14 14:16:31.320 19565 20064 D PresenceGatt: onConnectionStateChange device=4F:FC:05:2E:97:01 status=0 newState=0
+03-14 14:16:59.643 19565 19614 D PresenceGatt: onConnectionStateChange device=78:A2:A5:2C:DD:BD status=0 newState=2
+03-14 14:16:59.981 19565 19614 D PresenceGatt: CCCD device=78:A2:A5:2C:DD:BD enabled=true
+03-14 14:17:00.076 19565 19614 D PresenceGatt: HELLO_WRITE_REQ addr=78:A2:A5:2C:DD:BD prepared=false responseNeeded=false offset=0 bytes=215
+03-14 14:17:00.077 19565 19614 D PresenceGatt: HELLO_RX addr=78:A2:A5:2C:DD:BD bytes=215 ver=1 sid=16 nonce=32
+03-14 14:17:00.083 19565 19614 D PresenceGatt: REPLY_TX addr=78:A2:A5:2C:DD:BD ok=true bytes=311
+03-14 14:17:00.085 19565 19614 E PresenceHandshake: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=78:A2:A5:2C:DD:BD rewardPeer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:17:00.086 19565 19614 E PresenceHandshake: PP_HANDSHAKE DEVICE_B_SIGNATURE peer=78:A2:A5:2C:DD:BD value=MEUCIA0q7oi0pniCirS0LyIyUhDDE4spHAEqS+l6YQiNbwsMAiEAv8EF3xMUJzhdw2r9mHsANnWYww6JP2NbALzj19XKRJk=
+03-14 14:17:00.086 19565 19614 E PresenceHandshake: PP_VERIFY deviceASignatureValid=true peer=78:A2:A5:2C:DD:BD
+03-14 14:17:00.087 19565 19614 E PresenceHandshake: PP_VERIFY deviceBSignatureValid=false peer=78:A2:A5:2C:DD:BD
+03-14 14:17:00.087 19565 19614 E PresenceHandshake: PP_TICKET GENERATED encounterId=78a62e50-3ba2-706c-8c57-ee66069cc627 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:17:00.088 19565 19614 E PresenceHandshake: PP_TICKET JSON {"encounterId":"78a62e50-3ba2-706c-8c57-ee66069cc627","deviceAEphemeralKey":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh3MlZGP4p+Coo/gvkq5+GNwTLbPTzglLcjpAsb1l4EhfMqet9WMNwdTt4MJOGsD1VoVmH93htw2GLkp2cYY0Gw==","deviceBEphemeralKey":"8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d","helloHash":"3830bff08d942ae9e13b2ef08816478dbd01454fdfd852dcd0dd1f3d61512518","replyHash":"cdfc7ccf86706fa1ab7738d230fb0d10c5ef1860e71e7ad736a3159b0cc2ab44","handshakeTimestamp":1773451019000,"heartbeatId":118230067,"epochId":9852505,"heartbeatIndexInEpoch":7,"nonce":"61d8daa0-a17c-4f5c-a665-523dd9e48a23","protocolVersion":"presence_v1","appVersion":"0.1-server","deviceASignature":"MEUCIQDlKDxpkNeMveJrwDMojEKq+GExUegXop95heXi56BVPgIgcHeld8HMM23HOsYVXrIUTEtouOSdBt3oMXDP1y7pWTA=","deviceBSignature":"MEUCIA0q7oi0pniCirS0LyIyUhDDE4spHAEqS+l6YQiNbwsMAiEAv8EF3xMUJzhdw2r9mHsANnWYww6JP2NbALzj19XKRJk="}
+03-14 14:17:00.089 19565 19614 E PresenceHandshake: PP_TICKET_PERSISTED encounterId=78a62e50-3ba2-706c-8c57-ee66069cc627 peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d ok=true
+03-14 14:17:00.089 19565 19614 E PresenceHandshake: PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d encounterId=78a62e50-3ba2-706c-8c57-ee66069cc627
+03-14 14:17:00.222 19565 19614 D PresenceGatt: RESULT_RX addr=78:A2:A5:2C:DD:BD bytes=2
+03-14 14:17:00.222 19565 19614 E PresenceGatt: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=78:A2:A5:2C:DD:BD
+03-14 14:17:01.254 19565 19614 D PresenceGatt: onConnectionStateChange device=78:A2:A5:2C:DD:BD status=0 newState=0
+03-14 14:17:29.919 19565 19578 D PresenceGatt: onConnectionStateChange device=4E:C8:CF:D1:79:7C status=0 newState=2
+03-14 14:17:30.252 19565 19578 D PresenceGatt: CCCD device=4E:C8:CF:D1:79:7C enabled=true
+03-14 14:17:30.405 19565 19578 D PresenceGatt: HELLO_WRITE_REQ addr=4E:C8:CF:D1:79:7C prepared=false responseNeeded=false offset=0 bytes=215
+03-14 14:17:30.407 19565 19578 D PresenceGatt: HELLO_RX addr=4E:C8:CF:D1:79:7C bytes=215 ver=1 sid=16 nonce=32
+03-14 14:17:30.416 19565 19578 D PresenceGatt: REPLY_TX addr=4E:C8:CF:D1:79:7C ok=true bytes=313
+03-14 14:17:30.423 19565 19578 E PresenceHandshake: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=4E:C8:CF:D1:79:7C rewardPeer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:17:30.424 19565 19578 E PresenceHandshake: PP_HANDSHAKE DEVICE_B_SIGNATURE peer=4E:C8:CF:D1:79:7C value=MEUCIQDR5tYsK+NiR1rWNKur+gLITaw/Vc/Q4bD8Z1k03xtP0QIgZQSZ0lY6hugXneEWXgJwmINNMm9/oDbcyD9g/QIPwN0=
+03-14 14:17:30.425 19565 19578 E PresenceHandshake: PP_VERIFY deviceASignatureValid=true peer=4E:C8:CF:D1:79:7C
+03-14 14:17:30.425 19565 19578 E PresenceHandshake: PP_VERIFY deviceBSignatureValid=false peer=4E:C8:CF:D1:79:7C
+03-14 14:17:30.427 19565 19578 E PresenceHandshake: PP_TICKET GENERATED encounterId=220f78db-016c-e4a9-30df-4136819f810f peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d
+03-14 14:17:30.427 19565 19578 E PresenceHandshake: PP_TICKET JSON {"encounterId":"220f78db-016c-e4a9-30df-4136819f810f","deviceAEphemeralKey":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh3MlZGP4p+Coo/gvkq5+GNwTLbPTzglLcjpAsb1l4EhfMqet9WMNwdTt4MJOGsD1VoVmH93htw2GLkp2cYY0Gw==","deviceBEphemeralKey":"8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d","helloHash":"bb9a357a7971f3e4717800ec76435c16f206e47fb4d335dd1a26c3fd3d9f157f","replyHash":"e6d3dec167cc720e9f314502c76fac260cc869e73bd400a3ab0f79b03af260f2","handshakeTimestamp":1773451049000,"heartbeatId":118230069,"epochId":9852505,"heartbeatIndexInEpoch":9,"nonce":"d5d647a5-941a-40b2-8cc9-604b19f97ee5","protocolVersion":"presence_v1","appVersion":"0.1-server","deviceASignature":"MEYCIQCatnGsVIb7kmUmCpRM76q4u3b9VMRxYQd8ngkZNIZVHwIhANlIRR2BlarcQZRCSkc7ujN9KcjjdEmn3Qx3KZ7PTrNp","deviceBSignature":"MEUCIQDR5tYsK+NiR1rWNKur+gLITaw/Vc/Q4bD8Z1k03xtP0QIgZQSZ0lY6hugXneEWXgJwmINNMm9/oDbcyD9g/QIPwN0="}
+03-14 14:17:30.429 19565 19578 E PresenceHandshake: PP_TICKET_PERSISTED encounterId=220f78db-016c-e4a9-30df-4136819f810f peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d ok=true
+03-14 14:17:30.429 19565 19578 E PresenceHandshake: PP_SUPPRESS ledger_credit_blocked_placeholder_proof peer=8f10bdaf-65c3-4fbe-a065-ebafc37c2aab|929e08b9-cfb7-4f64-92b7-d4581516da7d encounterId=220f78db-016c-e4a9-30df-4136819f810f
+03-14 14:17:30.496 19565 19578 D PresenceGatt: RESULT_RX addr=4E:C8:CF:D1:79:7C bytes=2
+03-14 14:17:30.496 19565 19578 E PresenceGatt: PP_HANDSHAKE HANDSHAKE_COMPLETE peer=4E:C8:CF:D1:79:7C
+03-14 14:17:31.528 19565 19578 D PresenceGatt: onConnectionStateChange device=4E:C8:CF:D1:79:7C status=0 newState=0
