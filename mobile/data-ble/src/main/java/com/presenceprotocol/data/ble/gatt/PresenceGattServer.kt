@@ -63,6 +63,9 @@ class PresenceGattServer(
                 } else {
                     handleHelloWrite(device, value)
                 }
+            } else if (characteristic.uuid == PresenceGattUuids.RESULT_CHAR_UUID) {
+                Log.d(TAG, "RESULT_RX addr=${device.address} bytes=${value.size}")
+                Log.e(TAG, "PP_HANDSHAKE HANDSHAKE_COMPLETE peer=${device.address}")
             } else {
                 Log.d(TAG, "onWrite char=${characteristic.uuid} from=${device.address} bytes=${value.size}")
             }
@@ -126,7 +129,7 @@ class PresenceGattServer(
                 responderEphemeralPublicBase64 ?: error("responder public missing")
             )
             val responderSignatureBytes = java.util.Base64.getDecoder().decode(
-                EphemeralKeys.signBase64(responderPair.private, value)
+                EphemeralKeys.signBase64(responderPair.private, sha256Hex(value).toByteArray(Charsets.UTF_8))
             )
 
             val reply = ReplyPacket(
@@ -263,6 +266,10 @@ class PresenceGattServer(
         val created = UUID.randomUUID().toString()
         prefs.edit().putString("app_instance_id", created).apply()
         return created
+    }
+
+    fun startAdvertising(connectable: Boolean = true) {
+        android.util.Log.d(TAG, "startAdvertising connectable=$connectable (advertising via PresenceDiscoveryController)")
     }
 
     @SuppressLint("MissingPermission")

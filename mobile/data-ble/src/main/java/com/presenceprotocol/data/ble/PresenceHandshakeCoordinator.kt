@@ -172,7 +172,7 @@ class PresenceHandshakeCoordinator(
         }
 
         val deviceBSignatureValid = responderPublicKey?.let {
-            EphemeralKeys.verifyBase64(it, replyHash.toByteArray(Charsets.UTF_8), resolvedDeviceBSignature)
+            EphemeralKeys.verifyBase64(it, helloHash.toByteArray(Charsets.UTF_8), resolvedDeviceBSignature)
         } ?: false
 
         Log.e(TAG, "PP_VERIFY deviceASignatureValid=$deviceASignatureValid peer=$peerId")
@@ -266,6 +266,12 @@ class PresenceHandshakeCoordinator(
         Log.e(TAG, "PP_HANDSHAKE FAIL peer=$peerId reason=$reason")
         Log.d(TAG, "PIPE_FAIL peer=$peerId stage=fail reason=$reason")
         activePeer.compareAndSet(peerId, null)
+    }
+
+    fun getLocalPublicKeyBytes(): ByteArray {
+        ensureLocalEphemeral()
+        val pub = localEphemeralPublic ?: return ByteArray(32)
+        return try { java.util.Base64.getDecoder().decode(pub) } catch (_: Throwable) { ByteArray(32) }
     }
 
     private fun localShouldInitiate(peerId: String): Boolean {

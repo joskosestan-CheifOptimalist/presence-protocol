@@ -37,6 +37,7 @@ class PresenceGattClient(
     private var helloCharacteristic: BluetoothGattCharacteristic? = null
     private var currentAddress: String? = null
     private var pendingHelloBytes: ByteArray? = null
+    private var resultCharacteristic: BluetoothGattCharacteristic? = null
     private var lastHelloHash: String? = null
     private var lastReplyHash: String? = null
     private var lastDeviceBEphemeralKey: String? = null
@@ -130,6 +131,7 @@ class PresenceGattClient(
             val service = gatt.getService(PresenceGattUuids.PRESENCE_SERVICE_UUID)
             replyCharacteristic = service?.getCharacteristic(PresenceGattUuids.REPLY_CHAR_UUID)
             helloCharacteristic = service?.getCharacteristic(PresenceGattUuids.HELLO_CHAR_UUID)
+            resultCharacteristic = service?.getCharacteristic(PresenceGattUuids.RESULT_CHAR_UUID)
 
             Log.d(
                 TAG,
@@ -174,7 +176,11 @@ class PresenceGattClient(
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-            if (characteristic.uuid == PresenceGattUuids.HELLO_CHAR_UUID) {
+            if (characteristic.uuid == PresenceGattUuids.RESULT_CHAR_UUID) {
+                Log.d(TAG, "RESULT_TX addr=${gatt.device.address} status=$status")
+                if (status == BluetoothGatt.GATT_SUCCESS) { Log.e(TAG, "PP_HANDSHAKE HANDSHAKE_COMPLETE peer=${gatt.device.address}") }
+                cleanup("handshake complete")
+            } else if (characteristic.uuid == PresenceGattUuids.HELLO_CHAR_UUID) {
                 Log.d(TAG, "HELLO_TX addr=${gatt.device.address} status=$status bytes=${pendingHelloBytes?.size ?: 0}")
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     handshakeCoordinator.markCharWrite(gatt.device.address)
@@ -241,7 +247,7 @@ class PresenceGattClient(
                     deviceBPublicKeyBase64 = lastDeviceBPublicKeyBase64,
                     deviceBSignature = lastDeviceBSignature ?: "device_b_sig_missing"
                 )
-                cleanup("reply received")
+                writeResult(gatt)
             }
         }
     }
@@ -266,9 +272,9 @@ class PresenceGattClient(
         val payload = PresenceCborPackets.encodeHello(
             HelloPacket(
                 version = 1,
-                sessionId = ByteArray(1).also { secureRandom.nextBytes(it) },
-                nonce = ByteArray(1).also { secureRandom.nextBytes(it) },
-                clientPublicKey = ByteArray(1),
+                sessionId = ByteArray(16).also { secureRandom.nextBytes(it) },
+                nonce = ByteArray(32).also { secureRandom.nextBytes(it) },
+                clientPublicKey = handshakeCoordinator.getLocalPublicKeyBytes(),
                 timestampSeconds = nowSeconds,
                 appInstanceId = getAppInstanceId()
             )
@@ -285,6 +291,16 @@ class PresenceGattClient(
     }
 
     @SuppressLint("MissingPermission")
+    private fun writeResult(gatt: BluetoothGatt) {
+        val ch = resultCharacteristic ?: run { Log.w(TAG, "RESULT_TX_SKIP addr=${gatt.device.address}"); cleanup("result char missing"); return }
+        val payload = byteArrayOf(0x01, 0x00)
+        ch.writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        ch.value = payload
+        val ok = gatt.writeCharacteristic(ch)
+        Log.d(TAG, "RESULT_TX addr=${gatt.device.address} ok=$ok bytes=${payload.size}")
+    }
+
+    @SuppressLint("MissingPermission")
     private fun cleanup(reason: String) {
         val gatt = bluetoothGatt ?: return
         Log.d(TAG, "CLIENT_CLEANUP reason=$reason addr=${gatt.device.address}")
@@ -294,6 +310,7 @@ class PresenceGattClient(
         replyCharacteristic = null
         helloCharacteristic = null
         pendingHelloBytes = null
+        resultCharacteristic = null
         lastHelloHash = null
         lastReplyHash = null
         lastDeviceBEphemeralKey = null
