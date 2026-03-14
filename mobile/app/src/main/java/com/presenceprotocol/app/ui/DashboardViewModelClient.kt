@@ -20,7 +20,16 @@ object DashboardViewModelClient {
         val context = PresenceApp.appContext
         val ledger = InMemoryMiningLedger()
         val encounterStore = FileEncounterStore(context)
-        val handshakeCoordinator = PresenceHandshakeCoordinator(null, ledger, encounterStore)
+        val encounterStateMachine = com.presenceprotocol.domain.encounter.EncounterLifecycleStateMachine(
+            idGenerator = com.presenceprotocol.domain.encounter.EncounterIdGenerator(),
+            cooldownPolicy = com.presenceprotocol.domain.encounter.InMemoryEncounterCooldownPolicy(
+                java.time.Duration.ofMinutes(2)
+            )
+        )
+        val handshakeCoordinator = PresenceHandshakeCoordinator(
+            null, ledger, encounterStore,
+            encounterStateMachine = encounterStateMachine
+        )
         val gattServer = PresenceGattServer(context, handshakeCoordinator)
         android.util.Log.d("EncounterStore", "ENCOUNTER_STORE_STARTUP_COUNT count=${encounterStore.count()}")
         return DashboardViewModel(

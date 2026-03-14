@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicReference
 class PresenceHandshakeCoordinator(
     private val bluetoothAdapter: BluetoothAdapter?,
     private val miningLedger: MiningLedger,
-    private val encounterStore: EncounterStore
+    private val encounterStore: EncounterStore,
+    private val localDeviceId: String = "local",
+    private val encounterStateMachine: com.presenceprotocol.domain.encounter.EncounterLifecycleStateMachine? = null
 ) {
     enum class HandshakeState {
         DISCOVERED,
@@ -231,6 +233,28 @@ class PresenceHandshakeCoordinator(
         lastLedgerCreditMs[rewardPeerId] = now
         peers[peerId]?.lastSuccessMs = now
         Log.d(TAG, "PIPE_LEDGER_CREDIT peer=$rewardPeerId encounterId=${ticket.encounterId} stage=ledger_credit")
+        encounterStateMachine?.let { sm ->
+            try {
+                val payload = com.presenceprotocol.domain.encounter.CanonicalEncounterPayload(
+                    bytes = helloHash.toByteArray(Charsets.UTF_8),
+                    nonce = replyHash.toByteArray(Charsets.UTF_8),
+                    occurredAt = java.time.Instant.ofEpochMilli(handshakeTimestampMs)
+                )
+                val smPeers = com.presenceprotocol.domain.encounter.EncounterPeers(
+                    self = com.presenceprotocol.domain.encounter.PeerId(localDeviceId),
+                    peer = com.presenceprotocol.domain.encounter.PeerId(rewardPeerId)
+                )
+                val record = sm.start(
+                    com.presenceprotocol.domain.encounter.EncounterEvent.PeerDetected(
+                        peers = smPeers,
+                        payload = payload
+                    )
+                )
+                Log.e(TAG, "PP_STATE_MACHINE PEER_DETECTED encounterId=${record.id.value} peer=$rewardPeerId state=${record.state}")
+            } catch (t: Throwable) {
+                Log.w(TAG, "PP_STATE_MACHINE start failed peer=$rewardPeerId err=${t.message}")
+            }
+        }
         activePeer.compareAndSet(peerId, null)
     }
 
