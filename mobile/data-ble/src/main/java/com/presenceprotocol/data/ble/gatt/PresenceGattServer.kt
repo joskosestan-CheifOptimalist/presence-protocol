@@ -34,6 +34,16 @@ class PresenceGattServer(
     private val preparedHelloWrites = mutableMapOf<String, MutableList<ByteArray>>()
     private var responderEphemeralKeyPair: java.security.KeyPair? = null
     private var responderEphemeralPublicBase64: String? = null
+    private data class PendingResponderHandshake(
+        val stablePeerId: String,
+        val helloHash: String,
+        val replyHash: String,
+        val appVersion: String,
+        val deviceBPublicKeyBase64: String?,
+        val deviceBSignature: String,
+        val handshakeTimestampMs: Long
+    )
+    private val pendingResponderHandshakes = mutableMapOf<String, PendingResponderHandshake>()
 
     private val bluetoothManager: BluetoothManager? =
         context.getSystemService(BluetoothManager::class.java)
@@ -65,7 +75,22 @@ class PresenceGattServer(
                 }
             } else if (characteristic.uuid == PresenceGattUuids.RESULT_CHAR_UUID) {
                 Log.d(TAG, "RESULT_RX addr=${device.address} bytes=${value.size}")
-                Log.e(TAG, "PP_HANDSHAKE HANDSHAKE_COMPLETE peer=${device.address}")
+                val pending = pendingResponderHandshakes.remove(device.address)
+                if (pending != null) {
+                    handshakeCoordinator?.markResponderComplete(
+                        peerId = device.address,
+                        stablePeerId = pending.stablePeerId,
+                        helloHash = pending.helloHash,
+                        replyHash = pending.replyHash,
+                        appVersion = pending.appVersion,
+                        deviceBPublicKeyBase64 = pending.deviceBPublicKeyBase64,
+                        deviceBSignature = pending.deviceBSignature,
+                        handshakeTimestampMs = pending.handshakeTimestampMs
+                    )
+                    Log.e(TAG, "PP_HANDSHAKE HANDSHAKE_COMPLETE peer=${device.address}")
+                } else {
+                    Log.w(TAG, "RESULT_RX without pending responder handshake addr=${device.address}")
+                }
             } else {
                 Log.d(TAG, "onWrite char=${characteristic.uuid} from=${device.address} bytes=${value.size}")
             }
@@ -153,16 +178,16 @@ class PresenceGattServer(
                 val responderSigBase64 = java.util.Base64.getEncoder()
                     .encodeToString(responderSignatureBytes)
                 val responderPubBase64 = responderEphemeralPublicBase64
-                handshakeCoordinator?.markComplete(
-                    peerId = device.address,
+                pendingResponderHandshakes[device.address] = PendingResponderHandshake(
+                    stablePeerId = canonicalPeerKey,
                     helloHash = sha256Hex(value),
                     replyHash = replyPayloadHash,
                     appVersion = getAppVersion(),
-                    deviceBEphemeralKey = canonicalPeerKey,
                     deviceBPublicKeyBase64 = responderPubBase64,
                     deviceBSignature = responderSigBase64,
                     handshakeTimestampMs = hello.timestampSeconds * 1000L
                 )
+                Log.d(TAG, "RESPONDER_PENDING_STORED addr=${device.address} peerKey=$canonicalPeerKey")
             }
         } catch (t: Throwable) {
             Log.w(

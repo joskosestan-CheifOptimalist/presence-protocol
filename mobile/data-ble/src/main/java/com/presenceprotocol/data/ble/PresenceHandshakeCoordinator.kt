@@ -264,6 +264,8 @@ class PresenceHandshakeCoordinator(
         helloHash: String,
         replyHash: String,
         appVersion: String,
+        deviceBPublicKeyBase64: String?,
+        deviceBSignature: String,
         handshakeTimestampMs: Long
     ) {
         ensureLocalEphemeral()
@@ -273,7 +275,8 @@ class PresenceHandshakeCoordinator(
             replyHash = replyHash,
             appVersion = appVersion,
             deviceBEphemeralKey = stablePeerId,
-            deviceBSignature = "device_b_sig_placeholder",
+            deviceBPublicKeyBase64 = deviceBPublicKeyBase64,
+            deviceBSignature = deviceBSignature,
             handshakeTimestampMs = handshakeTimestampMs
         )
     }
