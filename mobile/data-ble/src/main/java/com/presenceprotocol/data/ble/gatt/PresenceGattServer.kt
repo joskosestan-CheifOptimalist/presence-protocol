@@ -149,12 +149,18 @@ class PresenceGattServer(
             if (ok) {
                 val canonicalPeerKey =
                     listOf(hello.appInstanceId, reply.appInstanceId).sorted().joinToString("|")
-                handshakeCoordinator?.markResponderComplete(
+                val replyPayloadHash = sha256Hex(payload)
+                val responderSigBase64 = java.util.Base64.getEncoder()
+                    .encodeToString(responderSignatureBytes)
+                val responderPubBase64 = responderEphemeralPublicBase64
+                handshakeCoordinator?.markComplete(
                     peerId = device.address,
-                    stablePeerId = canonicalPeerKey,
                     helloHash = sha256Hex(value),
-                    replyHash = sha256Hex(payload),
+                    replyHash = replyPayloadHash,
                     appVersion = getAppVersion(),
+                    deviceBEphemeralKey = canonicalPeerKey,
+                    deviceBPublicKeyBase64 = responderPubBase64,
+                    deviceBSignature = responderSigBase64,
                     handshakeTimestampMs = hello.timestampSeconds * 1000L
                 )
             }
