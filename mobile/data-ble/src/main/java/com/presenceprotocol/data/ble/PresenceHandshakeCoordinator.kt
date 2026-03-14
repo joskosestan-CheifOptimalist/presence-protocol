@@ -115,6 +115,7 @@ class PresenceHandshakeCoordinator(
     }
 
     fun markComplete(peerId: String, helloHash: String = "hello_hash_placeholder", replyHash: String = "reply_hash_placeholder", appVersion: String = "dev", deviceBEphemeralKey: String = peerId, deviceBPublicKeyBase64: String? = null, deviceBSignature: String = "device_b_sig_placeholder", handshakeTimestampMs: Long = System.currentTimeMillis()) {
+        ensureLocalEphemeral()
         val now = SystemClock.elapsedRealtime()
         val rewardPeerId = deviceBEphemeralKey
         peers[peerId]?.apply {
