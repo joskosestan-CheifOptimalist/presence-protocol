@@ -1,14 +1,6 @@
 package com.presenceprotocol.app.ui
 
-import com.presenceprotocol.app.BleConfig
-import com.presenceprotocol.app.BleRole
 import com.presenceprotocol.app.PresenceApp
-import com.presenceprotocol.data.ble.FileEncounterStore
-import com.presenceprotocol.data.ble.PresenceHandshakeCoordinator
-import com.presenceprotocol.data.ble.PresenceDiscoveryController
-import com.presenceprotocol.data.ble.gatt.PresenceGattServer
-import com.presenceprotocol.domain.InMemoryMiningLedger
-import com.presenceprotocol.domain.SyncCoordinator
 
 object DashboardViewModelClient {
     @Volatile private var instance: DashboardViewModel? = null
@@ -17,33 +9,12 @@ object DashboardViewModelClient {
         instance ?: synchronized(this) { instance ?: create().also { instance = it } }
 
     private fun create(): DashboardViewModel {
-        val context = PresenceApp.appContext
-        val ledger = InMemoryMiningLedger()
-        val encounterStore = FileEncounterStore(context)
-        val encounterStateMachine = com.presenceprotocol.domain.encounter.EncounterLifecycleStateMachine(
-            idGenerator = com.presenceprotocol.domain.encounter.EncounterIdGenerator(),
-            cooldownPolicy = com.presenceprotocol.domain.encounter.InMemoryEncounterCooldownPolicy(
-                java.time.Duration.ofMinutes(2)
-            )
-        )
-        val handshakeCoordinator = PresenceHandshakeCoordinator(
-            null, ledger, encounterStore,
-            encounterStateMachine = encounterStateMachine
-        )
-        val gattServer = PresenceGattServer(context, handshakeCoordinator)
-        android.util.Log.d("EncounterStore", "ENCOUNTER_STORE_STARTUP_COUNT count=${encounterStore.count()}")
+        val app = PresenceApp.instance
         return DashboardViewModel(
-            ledger = ledger,
-            gattServer = gattServer,
-            syncCoordinator = SyncCoordinator(),
-            discoveryController = PresenceDiscoveryController(
-                context,
-                gattServer,
-                ledger,
-                encounterStore,
-                allowInitiation = (BleConfig.BLE_ROLE == BleRole.CLIENT_ONLY || BleConfig.BLE_ROLE == BleRole.BOTH),
-                providedHandshakeCoordinator = handshakeCoordinator
-            )
+            ledger              = app.ledger,
+            gattServer          = app.gattServer,
+            syncCoordinator     = app.syncCoordinator,
+            discoveryController = app.discoveryController
         )
     }
 }

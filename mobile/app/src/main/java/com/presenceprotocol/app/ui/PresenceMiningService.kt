@@ -1,18 +1,16 @@
 package com.presenceprotocol.app.ui
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
+import com.presenceprotocol.app.PresenceApp
 
 class PresenceMiningService : Service() {
 
-    private val viewModel: DashboardViewModel by lazy { DashboardViewModelClient.default() }
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -20,11 +18,15 @@ class PresenceMiningService : Service() {
                 Log.e(TAG, "PP_SERVICE START")
                 ensureChannel()
                 startForeground(NOTIFICATION_ID, buildNotification())
-                viewModel.ensureDiscoveryStarted()
+                acquireWakeLock()
+                PresenceApp.instance.gattServer.start()
+                PresenceApp.instance.discoveryController.start()
             }
             ACTION_STOP -> {
                 Log.e(TAG, "PP_SERVICE STOP")
-                viewModel.stopDiscovery()
+                PresenceApp.instance.discoveryController.stop()
+                PresenceApp.instance.gattServer.stop()
+                releaseWakeLock()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
@@ -32,43 +34,49 @@ class PresenceMiningService : Service() {
         return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
-
     override fun onDestroy() {
         super.onDestroy()
-        Log.e(TAG, "PP_SERVICE DESTROYED — stopping discovery")
-        viewModel.stopDiscovery()
+        Log.e(TAG, "PP_SERVICE DESTROYED")
+        PresenceApp.instance.discoveryController.stop()
+        PresenceApp.instance.gattServer.stop()
+        releaseWakeLock()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun acquireWakeLock() {
+        val pm = getSystemService(PowerManager::class.java)
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PresenceProtocol::MiningLock")
+            .also { it.acquire(10 * 60 * 1000L) }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
     }
 
     private fun buildNotification(): Notification {
-        val tapIntent = PendingIntent.getActivity(
+        val tap = PendingIntent.getActivity(
             this, 0,
-            Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            },
+            Intent(this, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_SINGLE_TOP },
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        return android.app.Notification.Builder(this, CHANNEL_ID)
+        return Notification.Builder(this, CHANNEL_ID)
             .setContentTitle("Presence Protocol")
             .setContentText("Mining active — scanning for peers")
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setOngoing(true)
-            .setContentIntent(tapIntent)
+            .setContentIntent(tap)
             .build()
     }
 
     private fun ensureChannel() {
         val mgr = getSystemService(NotificationManager::class.java) ?: return
         if (mgr.getNotificationChannel(CHANNEL_ID) != null) return
-        val ch = NotificationChannel(
-            CHANNEL_ID,
-            "Presence Mining",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "Keeps BLE mining active in the background"
-            setShowBadge(false)
-        }
-        mgr.createNotificationChannel(ch)
+        mgr.createNotificationChannel(
+            NotificationChannel(CHANNEL_ID, "Presence Mining", NotificationManager.IMPORTANCE_LOW)
+                .apply { description = "Keeps BLE mining active in background"; setShowBadge(false) }
+        )
     }
 
     companion object {
