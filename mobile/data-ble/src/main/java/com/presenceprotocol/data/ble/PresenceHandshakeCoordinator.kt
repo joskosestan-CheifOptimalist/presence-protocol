@@ -45,6 +45,7 @@ class PresenceHandshakeCoordinator(
     private val activePeer = AtomicReference<String?>(null)
     private val lastHeartbeatSeen = ConcurrentHashMap<String, Long>()
     private val lastLedgerCreditMs = ConcurrentHashMap<String, Long>()
+    private val macToAppId = ConcurrentHashMap<String, String>()
 
 
     companion object {
@@ -52,6 +53,8 @@ class PresenceHandshakeCoordinator(
         private const val HANDSHAKE_COOLDOWN_MS = 30_000L
         private const val SUCCESS_COOLDOWN_MS = 120_000L
     }
+
+    fun resolveAppId(mac: String): String = macToAppId[mac] ?: mac
 
     fun recordSeen(peerId: String) {
         val now = SystemClock.elapsedRealtime()
@@ -120,6 +123,7 @@ class PresenceHandshakeCoordinator(
         ensureLocalEphemeral()
         val now = SystemClock.elapsedRealtime()
         val rewardPeerId = deviceBEphemeralKey
+        macToAppId[peerId] = rewardPeerId
         peers[peerId]?.apply {
             state = HandshakeState.HANDSHAKE_COMPLETE
         }

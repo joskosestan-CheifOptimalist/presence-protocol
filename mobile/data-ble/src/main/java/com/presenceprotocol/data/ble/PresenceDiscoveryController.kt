@@ -187,14 +187,15 @@ class PresenceDiscoveryController(
         val deviceName = try { device.name } catch (_: SecurityException) { null }
 
         val nowElapsed = SystemClock.elapsedRealtime()
-        val previousSeen = lastSeenMap[peerId]
+        val stableId = handshakeCoordinator.resolveAppId(peerId)
+        val previousSeen = lastSeenMap[stableId]
         if (previousSeen == null || nowElapsed - previousSeen > PEER_LOG_WINDOW_MS) {
             Log.e(
                 TAG,
                 "PP_DISCOVERY TARGET_MATCH addr=" + device.address + " name=" + deviceName + " rssi=" + result.rssi + " uuids=" + serviceUuids + " serviceData=" + serviceData
             )
         }
-        lastSeenMap[peerId] = nowElapsed
+        lastSeenMap[stableId] = nowElapsed
         handshakeCoordinator.recordSeen(peerId)
 
         if (previousSeen == null || nowElapsed - previousSeen > PEER_LOG_WINDOW_MS) {
