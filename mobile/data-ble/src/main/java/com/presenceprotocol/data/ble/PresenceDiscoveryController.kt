@@ -68,6 +68,7 @@ class PresenceDiscoveryController(
     private val gattClient by lazy { PresenceGattClient(context, handshakeCoordinator) }
 
     private val started = AtomicBoolean(false)
+    val isRunning: Boolean get() = started.get()
     private var cleanupJob: Job? = null
 
     private val scanCallback = object : ScanCallback() {

@@ -94,12 +94,12 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(this, "Presence Protocol requires Bluetooth permissions", Toast.LENGTH_LONG).show()
             }
         }
-        setContent { PresenceApp(dashboardViewModel) }
         if (hasBlePermissions()) {
             PresenceMiningService.start(this)
         } else {
             permissionLauncher.launch(requiredPermissions())
         }
+        setContent { PresenceApp(dashboardViewModel) }
     }
 
     override fun onDestroy() {

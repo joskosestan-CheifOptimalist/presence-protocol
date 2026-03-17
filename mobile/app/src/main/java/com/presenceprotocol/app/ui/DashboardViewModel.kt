@@ -25,7 +25,7 @@ class DashboardViewModel(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState
 
-    private var discoveryStarted = false
+    private var discoveryStarted = discoveryController.isRunning
     private var heartbeatJob: Job? = null
     private var miningSessionStartedAt: Long = 0L
 
@@ -34,6 +34,7 @@ class DashboardViewModel(
     }
 
     init {
+        _uiState.value = _uiState.value.copy(isMining = discoveryController.isRunning)
         viewModelScope.launch {
             ledger.observeStats().collect { stats ->
                 _uiState.value = _uiState.value.copy(
