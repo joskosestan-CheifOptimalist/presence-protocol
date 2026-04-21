@@ -11,12 +11,14 @@ data class LedgerStats(
     val total: Double,
     val totalEncounters: Int,
     val encountersThisEpoch: Int,
-    val currentEpoch: Int
+    val currentEpoch: Int,
+    val lastReward: Double,
+    val tokenSymbol: String
 )
 
 interface MiningLedger {
     fun observeStats(): Flow<LedgerStats>
-    fun recordEncounter(yieldIncrement: Double = 0.01)
+    fun recordEncounter(yieldIncrement: Double = 1.0)
     fun updateEpoch(epoch: Int) {}
 }
 
@@ -29,7 +31,9 @@ class InMemoryMiningLedger : MiningLedger {
             total = 0.0,
             totalEncounters = 0,
             encountersThisEpoch = 0,
-            currentEpoch = 0
+            currentEpoch = 0,
+            lastReward = 0.0,
+            tokenSymbol = "POP"
         )
     )
 
@@ -43,7 +47,8 @@ class InMemoryMiningLedger : MiningLedger {
             yieldToday = current.yieldToday + yieldIncrement,
             total = current.total + yieldIncrement,
             totalEncounters = current.totalEncounters + 1,
-            encountersThisEpoch = current.encountersThisEpoch + 1
+            encountersThisEpoch = current.encountersThisEpoch + 1,
+            lastReward = yieldIncrement
         )
     }
 
@@ -67,7 +72,9 @@ class StubMiningLedger : MiningLedger {
             total = 0.0,
             totalEncounters = 0,
             encountersThisEpoch = 0,
-            currentEpoch = 0
+            currentEpoch = 0,
+            lastReward = 0.0,
+            tokenSymbol = "POP"
         )
     )
 

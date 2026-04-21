@@ -60,6 +60,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation(project(":feature-relay"))
     implementation(project(":core-common"))
     implementation(project(":core-crypto"))

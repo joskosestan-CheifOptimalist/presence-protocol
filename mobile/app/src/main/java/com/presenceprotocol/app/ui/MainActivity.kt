@@ -237,6 +237,24 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
                 fontSize = 13.sp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "Today: +${String.format("%.1f", uiState.todayYield)} ${uiState.tokenSymbol}   •   Total: ${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}",
+                fontSize = 12.sp,
+                color = Dark,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Text(
+                text = "Last reward: +${String.format("%.1f", uiState.lastReward)} ${uiState.tokenSymbol}",
+                fontSize = 11.sp,
+                color = Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
         }
     }
 }
@@ -337,7 +355,7 @@ private fun YieldCard(uiState: DashboardUiState) {
                 Text(text = "Mining Yield", fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(text = "Settles on sync", fontSize = 12.sp, color = Gray)
             }
-            Text(text = "Total: ${String.format("%.1f", uiState.totalBalance)} POP", fontSize = 16.sp)
+            Text(text = "Total: ${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}", fontSize = 16.sp)
         }
     }
 }
@@ -429,7 +447,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = "Claimable", fontSize = 12.sp, color = Gray)
                 Text(
-                    text = String.format("%.2f POP", uiState.totalBalance),
+                    text = String.format("%.1f %s", uiState.totalBalance, uiState.tokenSymbol),
                     fontSize = 18.sp,
                     color = Gold,
                 )
@@ -466,7 +484,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = "Claim POP",
+                        text = "Claim ${uiState.tokenSymbol}",
                         fontSize = 13.sp,
                     )
                 }

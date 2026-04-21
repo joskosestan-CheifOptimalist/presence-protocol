@@ -43,7 +43,9 @@ class DashboardViewModel(
                     todayYield = stats.yieldToday,
                     totalBalance = stats.total,
                     totalEncounters = stats.totalEncounters,
-                    encountersThisEpoch = stats.encountersThisEpoch
+                    encountersThisEpoch = stats.encountersThisEpoch,
+                    lastReward = stats.lastReward,
+                    tokenSymbol = stats.tokenSymbol
                 )
                 android.util.Log.d(
                     "PP_UI",
@@ -188,6 +190,8 @@ data class DashboardUiState(
     val totalBalance: Double = 0.0,
     val totalEncounters: Int = 0,
     val encountersThisEpoch: Int = 0,
+    val lastReward: Double = 0.0,
+    val tokenSymbol: String = "POP",
     val networkHealth: String = "Stable",
     val debugState: String = "IDLE",
     val lastPeerSeenId: String = "-",

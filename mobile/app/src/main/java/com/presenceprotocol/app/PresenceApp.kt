@@ -18,7 +18,7 @@ import java.time.Duration
 class PresenceApp : Application() {
 
     // --- Singleton domain graph ---
-    val ledger by lazy { InMemoryMiningLedger() }
+    val ledger by lazy { PersistentMiningLedger(this) }
     val encounterStore by lazy { FileEncounterStore(this) }
     val syncCoordinator by lazy { SyncCoordinator() }
 
