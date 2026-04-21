@@ -40,8 +40,8 @@ Apply to **both** test devices before any foreground-service or background BLE t
 ## Phase 1 — BLE Discovery (Scan + Advertise + UI peer counter)
 - Date: 2026-02-24 (Auckland)
 - Devices:
-  - Samsung S23 (R5CR700RAQF) — PASS
-  - Samsung A17 (R5GYC0FZ6RY) — PASS
+  - Samsung S23 (DEVICE_A) — PASS
+  - Samsung A17 (DEVICE_B) — PASS
 - Human test:
   - Walked ~10m away: peers dropped to 0.
   - Returned to range: peers returned to 1.

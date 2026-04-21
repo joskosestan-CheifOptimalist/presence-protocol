@@ -29,7 +29,7 @@
 - Lint/static checks (once configured): `./gradlew lint` / `./gradlew detekt` (TBD)
 
 ### Build 1 — `./gradlew assembleDebug`
-- JAVA 17 hotspot added under `tools/jdk-17.0.11+9`; invoked via `JAVA_HOME=/home/josko/.openclaw/workspace/tools/jdk-17.0.11+9`.
+- JAVA 17 hotspot added under `tools/jdk-17.0.11+9`; invoked via `JAVA_HOME=/workspace/.openclaw/workspace/tools/jdk-17.0.11+9`.
 - Initial attempt failed at `:app:compileDebugKotlin` (MainActivity.kt:160) due to accessing `MaterialTheme` inside a Canvas draw scope. Hoisted color lookup into composable scope and re-ran.
 - Second attempt: **SUCCESS** (239 tasks, 20s). Warning: `package="com.presenceprotocol.app"` deprecated in manifest + strip warning for native libs (expected). Debug APK available under `app/build/outputs/apk/debug/`.
 
@@ -42,8 +42,8 @@
 ## 2026-02-23
 
 ### Build 3 — `./gradlew assembleDebug`
-- Installed Amazon Corretto 17 locally under `/home/josko/.jdk/jdk-17.0.11+9` to satisfy AGP 8.3 JDK requirement (no system JDK available).
-- Exported `JAVA_HOME` to that directory for the build step: `JAVA_HOME=/home/josko/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug`.
+- Installed Amazon Corretto 17 locally under `/workspace/.jdk/jdk-17.0.11+9` to satisfy AGP 8.3 JDK requirement (no system JDK available).
+- Exported `JAVA_HOME` to that directory for the build step: `JAVA_HOME=/workspace/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug`.
 - Build **succeeded** (254 tasks, ~65s). Only warning: remove deprecated `package="com.presenceprotocol.app"` attribute from `app/src/main/AndroidManifest.xml` to use namespace declarations exclusively.
 - Debug APK emitted at `app/build/outputs/apk/debug/app-debug.apk`; ready for handshake test install on two devices/emulators.
 
@@ -56,7 +56,7 @@
 - Manifest updated with BLE feature flag, split permissions (legacy vs S+), and neverForLocation flag on SCAN.
 - UI now surfaces live peers nearby + peers seen last 10 minutes; dev log records each scan event.
 
-### Build 5 — `JAVA_HOME=/home/josko/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug`
+### Build 5 — `JAVA_HOME=/workspace/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug`
 - Result: **SUCCESS** (254 tasks, 8 executed, 3s).
 - APK: `app/build/outputs/apk/debug/app-debug.apk`.
 

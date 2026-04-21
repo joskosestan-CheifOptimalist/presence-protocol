@@ -18,8 +18,8 @@
 ### Current state (checkpoint)
 - OpenClaw gateway dev profile: `127.0.0.1:19001`
 - Dev state dir: `~/.openclaw-dev`
-- Repo: `/home/josko/.openclaw-dev/workspace-dev/presence-protocol-repo`
-- Mobile path: `/home/josko/.openclaw-dev/workspace-dev/presence-protocol-repo/mobile`
+- Repo: `/workspace/.openclaw-dev/workspace-dev/presence-protocol-repo`
+- Mobile path: `/workspace/.openclaw-dev/workspace-dev/presence-protocol-repo/mobile`
 
 ### Next engineering move (highest leverage)
 Implement the security foundation in the mobile app:

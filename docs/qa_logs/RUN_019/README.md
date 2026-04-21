@@ -4,8 +4,8 @@ Branch:
 - alpha-0.2-work
 
 Devices:
-- A17 = R5GYC0FZ6RY
-- S23 = R5CR700RAQF
+- A17 = DEVICE_B
+- S23 = DEVICE_A
 
 Confirmed:
 - CBOR handshake remained live end-to-end

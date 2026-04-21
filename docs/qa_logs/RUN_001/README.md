@@ -3,7 +3,7 @@
 **NZDT Timestamp:** [Insert Timestamp]
 **Device Models:** A17 (SM-A175F), S21 (SM-G998B)
 **Android Versions:** [Insert Versions]
-**Repo Path:** /home/josko/.openclaw-dev/workspace-dev/presence-protocol-repo
+**Repo Path:** /workspace/.openclaw-dev/workspace-dev/presence-protocol-repo
 **Branch:** phase2a-gatt-transport
 **HEAD Commit:** 78b0a676bee9527c0e8a777bee247f536805db44
 **Build Variant:** Both Debug

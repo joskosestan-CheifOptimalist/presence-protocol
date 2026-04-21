@@ -1,4 +1,4 @@
 
 ## Local Paths
-- Repo: /home/josko/.openclaw-dev/workspace-dev/presence-protocol-repo
-- Mobile: /home/josko/.openclaw-dev/workspace-dev/presence-protocol-repo/mobile
+- Repo: /workspace/.openclaw-dev/workspace-dev/presence-protocol-repo
+- Mobile: /workspace/.openclaw-dev/workspace-dev/presence-protocol-repo/mobile

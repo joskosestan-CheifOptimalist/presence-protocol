@@ -4,8 +4,8 @@
 
 ## A. Preconditions Checklist
 1. **Hardware**
-   - Samsung Galaxy S23 (example device ID: `R5CR700RAQF`)
-   - Samsung Galaxy A17 (example device ID: `R5GYC0FZ6RY`)
+   - Samsung Galaxy S23 (example device ID: `DEVICE_A`)
+   - Samsung Galaxy A17 (example device ID: `DEVICE_B`)
    - Only one device may be connected to the workstation via USB at any time.
 2. **Device settings**
    - Developer Options enabled (tap Build Number 7×).
@@ -18,15 +18,15 @@
 4. **Permissions**
    - On first launch, grant requested permissions (Bluetooth Scan/Connect/Advertise on Android 12+, Fine Location on Android ≤11).
 5. **Workspace**
-   - Repo root: `/home/josko/.openclaw/workspace/presence-protocol-repo`
-   - JAVA_HOME set to Corretto 17: `/home/josko/.jdk/jdk-17.0.11+9`
+   - Repo root: `/workspace/.openclaw/workspace/presence-protocol-repo`
+   - JAVA_HOME set to Corretto 17: `/workspace/.jdk/jdk-17.0.11+9`
 
 ## B. Build & Install Steps
 1. Ensure only ONE device is connected via USB (`adb devices`). Disconnect the other.
 2. Build the APK from repo root:
    ```bash
-   cd /home/josko/.openclaw/workspace/presence-protocol-repo/mobile
-   JAVA_HOME=/home/josko/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug
+   cd /workspace/.openclaw/workspace/presence-protocol-repo/mobile
+   JAVA_HOME=/workspace/.jdk/jdk-17.0.11+9 ./gradlew assembleDebug
    ```
 3. Output APK path: `app/build/outputs/apk/debug/app-debug.apk`.
 
