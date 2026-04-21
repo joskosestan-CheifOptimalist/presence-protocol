@@ -31,3 +31,6 @@ _quarantine_*/
 *.bak.*
 *.kt.backup
 *.kt.bak*
+
+# local backup artifacts
+*.bak*
