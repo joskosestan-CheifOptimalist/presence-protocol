@@ -20,3 +20,17 @@
 
 # Allow QA evidence logs
 !docs/qa_logs/*.log
+
+# --- Generated / local ---
+mobile/android/
+**/*.bak_fix
+# local dev artefacts
+_quarantine_*/
+*.bak
+*.backup
+*.bak.*
+*.kt.backup
+*.kt.bak*
+
+# local backup artifacts
+*.bak*

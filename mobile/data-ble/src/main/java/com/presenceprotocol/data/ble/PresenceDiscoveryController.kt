@@ -1,5 +1,7 @@
 package com.presenceprotocol.data.ble
 
+import com.presenceprotocol.data.ble.gatt.PresenceGattServer
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -20,6 +22,7 @@ import android.os.ParcelUuid
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.presenceprotocol.data.ble.gatt.PresenceGattClient
 import com.presenceprotocol.domain.discovery.PeerDiscoveryMetrics
 import com.presenceprotocol.domain.discovery.PeerEvent
 import java.time.Instant
@@ -38,6 +41,11 @@ import kotlinx.coroutines.launch
 
 class PresenceDiscoveryController(
     private val context: Context,
+    private val presenceGattServer: PresenceGattServer,
+    private val miningLedger: com.presenceprotocol.domain.MiningLedger,
+    private val encounterStore: EncounterStore,
+    private val allowInitiation: Boolean = true,
+    private val providedHandshakeCoordinator: PresenceHandshakeCoordinator? = null,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) {
 
@@ -55,8 +63,12 @@ class PresenceDiscoveryController(
     val peerEvents: SharedFlow<PeerEvent> = _peerEvents.asSharedFlow()
 
     private val lastSeenMap = mutableMapOf<String, Long>()
+    private val lastRoleSkipLogMap = mutableMapOf<String, Long>()
+    private val handshakeCoordinator by lazy { providedHandshakeCoordinator ?: PresenceHandshakeCoordinator(bluetoothAdapter, miningLedger, encounterStore) }
+    private val gattClient by lazy { PresenceGattClient(context, handshakeCoordinator) }
 
     private val started = AtomicBoolean(false)
+    val isRunning: Boolean get() = started.get()
     private var cleanupJob: Job? = null
 
     private val scanCallback = object : ScanCallback() {
@@ -94,6 +106,7 @@ class PresenceDiscoveryController(
             started.set(false)
             return
         }
+        Log.e(TAG, "PP_DISCOVERY: start() -> PP_DISCOVERY START ")
         startAdvertising()
         startScanning()
         cleanupJob = scope.launch { pruneLoop() }
@@ -127,11 +140,14 @@ class PresenceDiscoveryController(
     @SuppressLint("MissingPermission")
     private fun startScanning() {
         val scanner: BluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner ?: return
-        val filter = ScanFilter.Builder().setServiceUuid(serviceParcelUuid).build()
+        val filter = ScanFilter.Builder()
+            .setServiceUuid(serviceParcelUuid)
+            .build()
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
         scanner.startScan(listOf(filter), settings, scanCallback)
+        Log.e(TAG, "PP_DISCOVERY: startScanning() -> PP_DISCOVERY START_SCAN filters=${filter}")
     }
 
     @SuppressLint("MissingPermission")
@@ -153,6 +169,7 @@ class PresenceDiscoveryController(
             .setIncludeDeviceName(false)
             .build()
         advertiser.startAdvertising(settings, data, advertiseCallback)
+        Log.e(TAG, "PP_DISCOVERY: startAdvertising() -> PP_DISCOVERY START_ADVERTISE")
     }
 
     @SuppressLint("MissingPermission")
@@ -164,9 +181,40 @@ class PresenceDiscoveryController(
         if (!hasBlePermissions()) return
         val device = result.device ?: return
         val peerId = device.address ?: return
+        val scanRecord = result.scanRecord
+        val serviceUuids = scanRecord?.serviceUuids?.joinToString(",") { it.uuid.toString() } ?: "none"
+        val serviceData = scanRecord?.getServiceData(serviceParcelUuid)?.joinToString("") { "%02x".format(it) } ?: "none"
+        val deviceName = try { device.name } catch (_: SecurityException) { null }
+
         val nowElapsed = SystemClock.elapsedRealtime()
-        lastSeenMap[peerId] = nowElapsed
-        _peerEvents.tryEmit(PeerEvent(peerId, Instant.now()))
+        val stableId = handshakeCoordinator.resolveAppId(peerId)
+        val previousSeen = lastSeenMap[stableId]
+        if (previousSeen == null || nowElapsed - previousSeen > PEER_LOG_WINDOW_MS) {
+            Log.e(
+                TAG,
+                "PP_DISCOVERY TARGET_MATCH addr=" + device.address + " name=" + deviceName + " rssi=" + result.rssi + " uuids=" + serviceUuids + " serviceData=" + serviceData
+            )
+        }
+        lastSeenMap[stableId] = nowElapsed
+        handshakeCoordinator.recordSeen(peerId)
+
+        if (previousSeen == null || nowElapsed - previousSeen > PEER_LOG_WINDOW_MS) {
+            Log.e(TAG, "PP_DISCOVERY PEER_SEEN addr=" + device.address + " rssi=" + result.rssi)
+            _peerEvents.tryEmit(PeerEvent(peerId, Instant.now()))
+        }
+
+        if (allowInitiation && handshakeCoordinator.shouldInitiate(device)) {
+            Log.d(TAG, "CONNECT_ATTEMPT addr=$peerId rssi=${result.rssi} allowInitiation=$allowInitiation")
+            handshakeCoordinator.markConnectStart(peerId)
+            gattClient.onPeerSeen(device)
+        } else if (!allowInitiation) {
+            val lastSkip = lastRoleSkipLogMap[peerId]
+            if (lastSkip == null || nowElapsed - lastSkip > PEER_LOG_WINDOW_MS) {
+                Log.d(TAG, "CONNECT_SKIP_ROLE addr=$peerId allowInitiation=$allowInitiation")
+                lastRoleSkipLogMap[peerId] = nowElapsed
+            }
+        }
+
         updateMetrics(nowElapsed)
     }
 
@@ -198,9 +246,11 @@ class PresenceDiscoveryController(
     companion object {
         private const val TAG = "PresenceDiscovery"
         private const val NEARBY_WINDOW_MS = 10_000L
+        private const val PEER_LOG_WINDOW_MS = 15_000L
         private const val TEN_MINUTES_MS = 10 * 60 * 1000L
         private const val PRUNE_INTERVAL_MS = 5_000L
 
         val PRESENCE_SERVICE_UUID: UUID = UUID.fromString("7d3a2d6b-9b7a-4f2a-9e5e-0c9d6f1b1c01")
+        val PRESENCE_SERVICE_DATA: ByteArray = byteArrayOf(0x50, 0x50, 0x31)
     }
 }

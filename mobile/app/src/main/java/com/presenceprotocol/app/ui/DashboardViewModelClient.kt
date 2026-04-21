@@ -1,17 +1,20 @@
 package com.presenceprotocol.app.ui
 
 import com.presenceprotocol.app.PresenceApp
-import com.presenceprotocol.data.ble.PresenceDiscoveryController
-import com.presenceprotocol.domain.StubMiningLedger
-import com.presenceprotocol.domain.SyncCoordinator
 
 object DashboardViewModelClient {
-    fun default(): DashboardViewModel {
-        val context = PresenceApp.appContext
+    @Volatile private var instance: DashboardViewModel? = null
+
+    fun default(): DashboardViewModel =
+        instance ?: synchronized(this) { instance ?: create().also { instance = it } }
+
+    private fun create(): DashboardViewModel {
+        val app = PresenceApp.instance
         return DashboardViewModel(
-            ledger = StubMiningLedger(),
-            syncCoordinator = SyncCoordinator(),
-            discoveryController = PresenceDiscoveryController(context)
+            ledger              = app.ledger,
+            gattServer          = app.gattServer,
+            syncCoordinator     = app.syncCoordinator,
+            discoveryController = app.discoveryController
         )
     }
 }
