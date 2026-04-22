@@ -18,66 +18,45 @@ data class LedgerStats(
 
 interface MiningLedger {
     fun observeStats(): Flow<LedgerStats>
-    fun recordEncounter(yieldIncrement: Double = 1.0)
+    fun recordEncounter(peerId: String, yieldIncrement: Double = 1.0): Boolean
     fun updateEpoch(epoch: Int) {}
 }
 
 class InMemoryMiningLedger : MiningLedger {
     private val stats = MutableStateFlow(
-        LedgerStats(
-            verifiedToday = 0,
-            pending = 0,
-            yieldToday = 0.0,
-            total = 0.0,
-            totalEncounters = 0,
-            encountersThisEpoch = 0,
-            currentEpoch = 0,
-            lastReward = 0.0,
-            tokenSymbol = "POP"
-        )
+        LedgerStats(0,0,0.0,0.0,0,0,0,0.0,"POP")
     )
+
+    private val peerLast = mutableMapOf<String, Long>()
+
+    companion object {
+        private const val COOLDOWN = 120_000L
+        private const val MAX_DAILY = 100
+        private const val MAX_EPOCH = 100000
+    }
 
     override fun observeStats(): Flow<LedgerStats> = stats.asStateFlow()
 
-    override fun recordEncounter(yieldIncrement: Double) {
-        val current = stats.value
-        stats.value = current.copy(
-            verifiedToday = current.verifiedToday + 1,
-            pending = current.pending + 1,
-            yieldToday = current.yieldToday + yieldIncrement,
-            total = current.total + yieldIncrement,
-            totalEncounters = current.totalEncounters + 1,
-            encountersThisEpoch = current.encountersThisEpoch + 1,
+    override fun recordEncounter(peerId: String, yieldIncrement: Double): Boolean {
+        val now = System.currentTimeMillis()
+        val s = stats.value
+
+        val last = peerLast[peerId]
+        if (last != null && now - last < COOLDOWN) return false
+        if (s.verifiedToday >= MAX_DAILY) return false
+        // epoch cap temporarily relaxed
+
+        peerLast[peerId] = now
+
+        stats.value = s.copy(
+            verifiedToday = s.verifiedToday + 1,
+            pending = s.pending + 1,
+            yieldToday = s.yieldToday + yieldIncrement,
+            total = s.total + yieldIncrement,
+            totalEncounters = s.totalEncounters + 1,
+            encountersThisEpoch = s.encountersThisEpoch + 1,
             lastReward = yieldIncrement
         )
+        return true
     }
-
-    override fun updateEpoch(epoch: Int) {
-        val current = stats.value
-        if (epoch != current.currentEpoch) {
-            stats.value = current.copy(
-                currentEpoch = epoch,
-                encountersThisEpoch = 0
-            )
-        }
-    }
-}
-
-class StubMiningLedger : MiningLedger {
-    private val stats = MutableStateFlow(
-        LedgerStats(
-            verifiedToday = 0,
-            pending = 0,
-            yieldToday = 0.0,
-            total = 0.0,
-            totalEncounters = 0,
-            encountersThisEpoch = 0,
-            currentEpoch = 0,
-            lastReward = 0.0,
-            tokenSymbol = "POP"
-        )
-    )
-
-    override fun observeStats(): Flow<LedgerStats> = stats.asStateFlow()
-    override fun recordEncounter(yieldIncrement: Double) = Unit
 }

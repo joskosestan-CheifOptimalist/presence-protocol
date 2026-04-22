@@ -233,7 +233,10 @@ class PresenceHandshakeCoordinator(
             return
         }
 
-        miningLedger.recordEncounter()
+        if (!miningLedger.recordEncounter(rewardPeerId)) {
+    android.util.Log.d("PP","BLOCKED_POLICY") // ALLOW_AFTER_COOLDOWN_PATCH
+    return
+}
         lastLedgerCreditMs[rewardPeerId] = now
         peers[peerId]?.lastSuccessMs = now
         Log.d(TAG, "PIPE_LEDGER_CREDIT peer=$rewardPeerId encounterId=${ticket.encounterId} stage=ledger_credit")
