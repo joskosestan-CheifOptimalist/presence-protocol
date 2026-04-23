@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.presenceprotocol.data.ble.PresenceDiscoveryController
 import com.presenceprotocol.domain.MiningLedger
 import com.presenceprotocol.domain.SyncCoordinator
+import com.presenceprotocol.domain.ReceiptItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -45,7 +46,8 @@ class DashboardViewModel(
                     totalEncounters = stats.totalEncounters,
                     encountersThisEpoch = stats.encountersThisEpoch,
                     lastReward = stats.lastReward,
-                    tokenSymbol = stats.tokenSymbol
+                    tokenSymbol = stats.tokenSymbol,
+                    recentReceipts = stats.recentReceipts
                 )
                 android.util.Log.d(
                     "PP_UI",
@@ -192,6 +194,7 @@ data class DashboardUiState(
     val encountersThisEpoch: Int = 0,
     val lastReward: Double = 0.0,
     val tokenSymbol: String = "POP",
+    val recentReceipts: List<ReceiptItem> = emptyList(),
     val networkHealth: String = "Stable",
     val debugState: String = "IDLE",
     val lastPeerSeenId: String = "-",

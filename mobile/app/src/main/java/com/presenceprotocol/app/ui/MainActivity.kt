@@ -151,6 +151,8 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 YieldCard(uiState)
                 Spacer(modifier = Modifier.height(12.dp))
                 MiningCountersCard(uiState)
+                Spacer(modifier = Modifier.height(12.dp))
+                RecentReceiptsCard(uiState)
                 SettlementLayerCard(uiState)
                 Text(
                     text = "Details & Logs",
@@ -387,6 +389,35 @@ private fun MiningCountersCard(uiState: DashboardUiState) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = uiState.pendingEncounters.toString(), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
                     Text(text = "Pending", fontSize = 12.sp, color = Gray)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun RecentReceiptsCard(uiState: DashboardUiState) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(176.dp),
+        colors = CardDefaults.cardColors(containerColor = OlivePale),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Recent Receipts", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (uiState.recentReceipts.isEmpty()) {
+                Text(text = "No receipts yet", fontSize = 12.sp, color = Gray)
+            } else {
+                uiState.recentReceipts.forEach { item ->
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = item.peerLabel, fontSize = 12.sp, color = Dark)
+                        Text(text = "+${String.format("%.2f", item.reward)} ${uiState.tokenSymbol}", fontSize = 12.sp, color = Gold)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
         }

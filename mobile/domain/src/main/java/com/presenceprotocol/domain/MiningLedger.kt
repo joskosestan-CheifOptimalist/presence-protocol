@@ -4,6 +4,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+data class ReceiptItem(
+    val timestampMs: Long,
+    val peerLabel: String,
+    val reward: Double
+)
+
 data class LedgerStats(
     val verifiedToday: Int,
     val pending: Int,
@@ -13,7 +19,8 @@ data class LedgerStats(
     val encountersThisEpoch: Int,
     val currentEpoch: Int,
     val lastReward: Double,
-    val tokenSymbol: String
+    val tokenSymbol: String,
+    val recentReceipts: List<ReceiptItem>
 )
 
 interface MiningLedger {
@@ -24,7 +31,18 @@ interface MiningLedger {
 
 class InMemoryMiningLedger : MiningLedger {
     private val stats = MutableStateFlow(
-        LedgerStats(0,0,0.0,0.0,0,0,0,0.0,"POP")
+        LedgerStats(
+            verifiedToday = 0,
+            pending = 0,
+            yieldToday = 0.0,
+            total = 0.0,
+            totalEncounters = 0,
+            encountersThisEpoch = 0,
+            currentEpoch = 0,
+            lastReward = 0.0,
+            tokenSymbol = "POP",
+            recentReceipts = emptyList()
+        )
     )
 
     private val peerLast = mutableMapOf<String, Long>()

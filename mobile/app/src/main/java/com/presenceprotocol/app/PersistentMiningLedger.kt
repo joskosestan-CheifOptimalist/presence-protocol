@@ -12,6 +12,20 @@ private val Context.ds by preferencesDataStore("ledger")
 
 class PersistentMiningLedger(private val context: Context) : MiningLedger {
 
+    private fun encodeReceipts(items: List<ReceiptItem>): String =
+        items.joinToString("\n") { "${it.timestampMs}|${it.peerLabel}|${it.reward}" }
+
+    private fun decodeReceipts(raw: String): List<ReceiptItem> =
+        raw.lines().mapNotNull { line ->
+            val parts = line.split("|")
+            if (parts.size != 3) null else {
+                val ts = parts[0].toLongOrNull() ?: return@mapNotNull null
+                val reward = parts[2].toDoubleOrNull() ?: return@mapNotNull null
+                ReceiptItem(ts, parts[1], reward)
+            }
+        }
+
+
     companion object {
         private const val COOLDOWN = 120_000L
         private const val MAX_DAILY = 100
@@ -24,6 +38,7 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
         val YIELD_TODAY = doublePreferencesKey("yield_today")
         val LAST_DAY_KEY = stringPreferencesKey("last_day_key")
         val LAST_REWARD = doublePreferencesKey("last_reward")
+        val RECENT_RECEIPTS = stringPreferencesKey("recent_receipts")
         val E = intPreferencesKey("e")
         val P = stringPreferencesKey("p")
         val D = stringPreferencesKey("d")
@@ -45,7 +60,8 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
                 encountersThisEpoch = prefs[K.E] ?: 0,
                 currentEpoch = 0,
                 lastReward = prefs[K.LAST_REWARD] ?: 0.0,
-                tokenSymbol = "POP"
+                tokenSymbol = "POP",
+                recentReceipts = decodeReceipts(prefs[K.RECENT_RECEIPTS] ?: "")
             )
         }
 
@@ -69,6 +85,9 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
         // epoch cap temporarily relaxed
 
         map[peerId] = now
+        val peerLabel = peerId.takeLast(8)
+        val existingReceipts = decodeReceipts(prefs[K.RECENT_RECEIPTS] ?: "")
+        val updatedReceipts = (listOf(ReceiptItem(now, peerLabel, yieldIncrement)) + existingReceipts).take(5)
 
         context.ds.edit {
             it[K.V] = verifiedToday + 1
@@ -79,6 +98,7 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
             it[K.D] = today
             it[K.P] = map.entries.joinToString("\n") { e -> "${e.key}|${e.value}" }
             it[K.LAST_REWARD] = yieldIncrement
+            it[K.RECENT_RECEIPTS] = encodeReceipts(updatedReceipts)
         }
         true
     }
