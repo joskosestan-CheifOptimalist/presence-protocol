@@ -396,26 +396,75 @@ private fun MiningCountersCard(uiState: DashboardUiState) {
 }
 
 
+
+private fun formatReceiptAge(timestampMs: Long): String {
+    val deltaSec = ((System.currentTimeMillis() - timestampMs) / 1000).coerceAtLeast(0)
+    return when {
+        deltaSec < 15 -> "just now"
+        deltaSec < 60 -> "${deltaSec}s ago"
+        deltaSec < 3600 -> "${deltaSec / 60}m ago"
+        else -> "${deltaSec / 3600}h ago"
+    }
+}
+
 @Composable
 private fun RecentReceiptsCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(176.dp),
+            .height(196.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Recent Receipts", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             if (uiState.recentReceipts.isEmpty()) {
                 Text(text = "No receipts yet", fontSize = 12.sp, color = Gray)
             } else {
-                uiState.recentReceipts.forEach { item ->
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(text = item.peerLabel, fontSize = 12.sp, color = Dark)
-                        Text(text = "+${String.format("%.2f", item.reward)} ${uiState.tokenSymbol}", fontSize = 12.sp, color = Gold)
+                val latest = uiState.recentReceipts.first()
+
+                Text(
+                    text = "Latest proof",
+                    fontSize = 11.sp,
+                    color = Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(text = latest.peerLabel, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Dark)
+                        Text(text = formatReceiptAge(latest.timestampMs), fontSize = 11.sp, color = Gray)
+                    }
+                    Text(
+                        text = "+${String.format("%.2f", latest.reward)} ${uiState.tokenSymbol}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Gold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Previous", fontSize = 11.sp, color = Gray)
+                Spacer(modifier = Modifier.height(4.dp))
+
+                uiState.recentReceipts.drop(1).take(4).forEach { item ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(text = item.peerLabel, fontSize = 12.sp, color = Dark)
+                            Text(text = formatReceiptAge(item.timestampMs), fontSize = 10.sp, color = Gray)
+                        }
+                        Text(
+                            text = "+${String.format("%.2f", item.reward)}",
+                            fontSize = 12.sp,
+                            color = Gold
+                        )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                 }
