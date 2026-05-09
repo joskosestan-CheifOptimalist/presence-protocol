@@ -77,6 +77,7 @@ import com.presenceprotocol.app.ui.theme.LayerEncounter
 import com.presenceprotocol.app.ui.theme.LayerRelay
 import com.presenceprotocol.app.ui.theme.LayerMidnight
 import com.presenceprotocol.app.ui.theme.LayerCardano
+import androidx.compose.animation.core.RepeatMode
 
 class MainActivity : ComponentActivity() {
 
@@ -208,19 +209,44 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val transition = rememberInfiniteTransition()
+            val transition = rememberInfiniteTransition(label = "presence_hero")
+
+            val pulseDuration = when {
+                uiState.peersNearby <= 0 -> 2200
+                uiState.peersNearby == 1 -> 1400
+                else -> 900
+            }
+
             val pulseAlpha by transition.animateFloat(
-                initialValue = 0.3f,
-                targetValue = 0.9f,
-                animationSpec = infiniteRepeatable(tween(2600, easing = FastOutSlowInEasing))
+                initialValue = if (uiState.peersNearby > 0) 0.45f else 0.25f,
+                targetValue = if (uiState.peersNearby > 0) 1f else 0.65f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = pulseDuration,
+                        easing = FastOutSlowInEasing
+                    ),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "presence_hero_alpha"
             )
             Box(contentAlignment = Alignment.Center) {
                 val primaryColor = GoldBright
-                Canvas(modifier = Modifier.size(200.dp)) {
+                Canvas(modifier = Modifier.size(220.dp)) {
                     drawCircle(
-                        color = primaryColor.copy(alpha = pulseAlpha),
-                        style = Stroke(width = 6.dp.toPx())
+                        color = primaryColor.copy(alpha = if (uiState.peersNearby > 0) pulseAlpha else pulseAlpha * 0.65f),
+                        radius = if (uiState.peersNearby > 0) 96.dp.toPx() else 88.dp.toPx(),
+                        style = Stroke(
+                            width = if (uiState.peersNearby > 0) 12.dp.toPx() else 5.dp.toPx()
+                        )
                     )
+
+                    if (uiState.peersNearby > 0) {
+                        drawCircle(
+                            color = primaryColor.copy(alpha = pulseAlpha * 0.35f),
+                            radius = 108.dp.toPx(),
+                            style = Stroke(width = 3.dp.toPx())
+                        )
+                    }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Peers Nearby", fontSize = 14.sp)
@@ -228,9 +254,16 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
                         text = uiState.peersNearby.toString(),
                         fontSize = 42.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GoldBright
+                        color = if (uiState.peersNearby > 0) GoldBright else Dark
                     )
-                    Text(text = uiState.statusText, fontSize = 12.sp, color = Gray)
+                    Text(
+                        text = if (uiState.peersNearby > 0)
+                            "Presence detected"
+                        else
+                            "Listening for presence…",
+                        fontSize = 12.sp,
+                        color = Gray
+                    )
                 }
             }
             Text(

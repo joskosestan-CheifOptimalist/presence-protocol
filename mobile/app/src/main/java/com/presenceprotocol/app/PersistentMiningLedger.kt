@@ -40,6 +40,7 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
         val LAST_REWARD = doublePreferencesKey("last_reward")
         val RECENT_RECEIPTS = stringPreferencesKey("recent_receipts")
         val E = intPreferencesKey("e")
+        val TOTAL_ENCOUNTERS = intPreferencesKey("total_encounters")
         val P = stringPreferencesKey("p")
         val D = stringPreferencesKey("d")
     }
@@ -56,12 +57,13 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
                 pending = 0,
                 yieldToday = yieldToday,
                 total = prefs[K.T] ?: 0.0,
-                totalEncounters = 0,
+                totalEncounters = prefs[K.TOTAL_ENCOUNTERS] ?: (prefs[K.E] ?: 0),
                 encountersThisEpoch = prefs[K.E] ?: 0,
                 currentEpoch = 0,
                 lastReward = prefs[K.LAST_REWARD] ?: 0.0,
-                tokenSymbol = "POP",
-                recentReceipts = decodeReceipts(prefs[K.RECENT_RECEIPTS] ?: "")
+                tokenSymbol = "CPOP",
+                recentReceipts = decodeReceipts(prefs[K.RECENT_RECEIPTS] ?: ""),
+                anchorHash = computeAnchorHash(decodeReceipts(prefs[K.RECENT_RECEIPTS] ?: ""))
             )
         }
 
@@ -95,6 +97,7 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
             it[K.YIELD_TODAY] = yieldToday + yieldIncrement
             it[K.LAST_DAY_KEY] = today
             it[K.E] = (prefs[K.E] ?: 0) + 1
+            it[K.TOTAL_ENCOUNTERS] = (prefs[K.TOTAL_ENCOUNTERS] ?: (prefs[K.E] ?: 0)) + 1
             it[K.D] = today
             it[K.P] = map.entries.joinToString("\n") { e -> "${e.key}|${e.value}" }
             it[K.LAST_REWARD] = yieldIncrement

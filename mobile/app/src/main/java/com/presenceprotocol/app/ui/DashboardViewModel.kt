@@ -47,7 +47,8 @@ class DashboardViewModel(
                     encountersThisEpoch = stats.encountersThisEpoch,
                     lastReward = stats.lastReward,
                     tokenSymbol = stats.tokenSymbol,
-                    recentReceipts = stats.recentReceipts
+                    recentReceipts = stats.recentReceipts,
+                    anchorHash = stats.anchorHash
                 )
                 android.util.Log.d(
                     "PP_UI",
@@ -193,8 +194,9 @@ data class DashboardUiState(
     val totalEncounters: Int = 0,
     val encountersThisEpoch: Int = 0,
     val lastReward: Double = 0.0,
-    val tokenSymbol: String = "POP",
+    val tokenSymbol: String = "CPOP",
     val recentReceipts: List<ReceiptItem> = emptyList(),
+    val anchorHash: String = "",
     val networkHealth: String = "Stable",
     val debugState: String = "IDLE",
     val lastPeerSeenId: String = "-",

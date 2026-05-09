@@ -3,12 +3,20 @@ package com.presenceprotocol.domain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.security.MessageDigest
 
 data class ReceiptItem(
     val timestampMs: Long,
     val peerLabel: String,
     val reward: Double
 )
+
+
+fun computeAnchorHash(receipts: List<ReceiptItem>): String {
+    val canonical = receipts.joinToString("\n") { "${it.timestampMs}|${it.peerLabel}|${"%.4f".format(it.reward)}" }
+    val bytes = MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8))
+    return bytes.joinToString("") { "%02x".format(it) }
+}
 
 data class LedgerStats(
     val verifiedToday: Int,
@@ -20,7 +28,8 @@ data class LedgerStats(
     val currentEpoch: Int,
     val lastReward: Double,
     val tokenSymbol: String,
-    val recentReceipts: List<ReceiptItem>
+    val recentReceipts: List<ReceiptItem>,
+    val anchorHash: String
 )
 
 interface MiningLedger {
@@ -40,8 +49,9 @@ class InMemoryMiningLedger : MiningLedger {
             encountersThisEpoch = 0,
             currentEpoch = 0,
             lastReward = 0.0,
-            tokenSymbol = "POP",
-            recentReceipts = emptyList()
+            tokenSymbol = "CPOP",
+            recentReceipts = emptyList(),
+            anchorHash = ""
         )
     )
 
