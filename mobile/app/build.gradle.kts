@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.presenceprotocol.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.presenceprotocol.app"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "0.1"
     }
@@ -60,6 +60,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation(project(":feature-relay"))
     implementation(project(":core-common"))
