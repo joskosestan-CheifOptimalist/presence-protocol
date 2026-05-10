@@ -78,6 +78,8 @@ import com.presenceprotocol.app.ui.theme.LayerRelay
 import com.presenceprotocol.app.ui.theme.LayerMidnight
 import com.presenceprotocol.app.ui.theme.LayerCardano
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
 
 class MainActivity : ComponentActivity() {
 
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Discovery continues in PresenceMiningService — do not stop here
+        // Device Field continues in PresenceMiningService — do not stop here
     }
 
     private fun hasBlePermissions(): Boolean =
@@ -136,16 +138,15 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 18.dp, vertical = 2.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TopBar(
-                    title = "Presence Protocol",
-                    subtitle = "Quiet Mining",
-                    pill = if (uiState.isMining) "Mining ON" else "Idle",
+                BrandHeader(
                     onLongPress = { viewModel.showDeveloperPanel(true) }
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 PresencePulseHero(uiState)
+                Spacer(modifier = Modifier.height(16.dp))
                 PrimaryToggle(isMining = uiState.isMining) { viewModel.toggleMining() }
                 VerifiedCard(uiState)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -158,7 +159,7 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 Text(
                     text = "Details & Logs",
                     color = GoldLight,
-                    fontSize = 13.sp,
+                    fontSize = 10.sp,
                     modifier = Modifier
                         .align(Alignment.Start)
                         .clickable { viewModel.showDeveloperPanel(true) }
@@ -196,139 +197,202 @@ private fun TopBar(title: String, subtitle: String, pill: String, onLongPress: (
 }
 
 @Composable
+private fun BrandHeader(onLongPress: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(42.dp)
+            .clickable { onLongPress() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "◈",
+            fontSize = 18.sp,
+            color = Olive,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "PRESENCE",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Dark,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = "PROTOCOL",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Olive,
+                letterSpacing = 1.sp
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(OlivePale.copy(alpha = 0.75f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "◌", fontSize = 18.sp, color = Olive)
+        }
+    }
+}
+
+@Composable
 private fun PresencePulseHero(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(292.dp),
+            .height(112.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val transition = rememberInfiniteTransition(label = "presence_hero")
-
-            val pulseDuration = when {
-                uiState.peersNearby <= 0 -> 2200
-                uiState.peersNearby == 1 -> 1400
-                else -> 900
-            }
-
-            val pulseAlpha by transition.animateFloat(
-                initialValue = if (uiState.peersNearby > 0) 0.45f else 0.25f,
-                targetValue = if (uiState.peersNearby > 0) 1f else 0.65f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = pulseDuration,
-                        easing = FastOutSlowInEasing
-                    ),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "presence_hero_alpha"
-            )
-            Box(contentAlignment = Alignment.Center) {
-                val primaryColor = GoldBright
-                Canvas(modifier = Modifier.size(220.dp)) {
-                    drawCircle(
-                        color = primaryColor.copy(alpha = if (uiState.peersNearby > 0) pulseAlpha else pulseAlpha * 0.65f),
-                        radius = if (uiState.peersNearby > 0) 96.dp.toPx() else 88.dp.toPx(),
-                        style = Stroke(
-                            width = if (uiState.peersNearby > 0) 12.dp.toPx() else 5.dp.toPx()
-                        )
-                    )
-
-                    if (uiState.peersNearby > 0) {
-                        drawCircle(
-                            color = primaryColor.copy(alpha = pulseAlpha * 0.35f),
-                            radius = 108.dp.toPx(),
-                            style = Stroke(width = 3.dp.toPx())
-                        )
-                    }
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Peers Nearby", fontSize = 14.sp)
-                    Text(
-                        text = uiState.peersNearby.toString(),
-                        fontSize = 42.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (uiState.peersNearby > 0) GoldBright else Dark
-                    )
-                    Text(
-                        text = if (uiState.peersNearby > 0)
-                            "Presence detected"
-                        else
-                            "Listening for presence…",
-                        fontSize = 12.sp,
-                        color = Gray
-                    )
-                }
-            }
-            Text(
-                text = "Presence earns when encounters are mutually signed.",
-                textAlign = TextAlign.Center,
-                fontSize = 13.sp,
-                modifier = Modifier.padding(horizontal = 24.dp)
+            MetricTile(
+                label = "Today",
+                value = "+${String.format("%.1f", uiState.todayYield)} ${uiState.tokenSymbol}",
+                modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            DividerMark()
 
-            Text(
-                text = "Today: +${String.format("%.1f", uiState.todayYield)} ${uiState.tokenSymbol}   •   Total: ${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}",
-                fontSize = 12.sp,
-                color = Dark,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
+            MetricTile(
+                label = "Total",
+                value = "${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}",
+                modifier = Modifier.weight(1f)
             )
 
-            Text(
-                text = "Last reward: +${String.format("%.1f", uiState.lastReward)} ${uiState.tokenSymbol}",
-                fontSize = 11.sp,
-                color = Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            DividerMark()
+
+            MetricTile(
+                label = "Last reward",
+                value = "+${String.format("%.1f", uiState.lastReward)} ${uiState.tokenSymbol}",
+                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
 @Composable
-private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
-    Button(
-        onClick = onToggle,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = GoldBright, contentColor = Dark)
+private fun MetricTile(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(text = if (isMining) "Stop Mining" else "Start Mining", fontSize = 16.sp)
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .background(OlivePale.copy(alpha = 0.65f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+    text = when (label) {
+        "Today" -> "◔"
+        "Total" -> "◈"
+        else -> "✦"
+    },
+    fontSize = 18.sp,
+    color = Olive,
+    fontWeight = FontWeight.Bold
+)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = label, fontSize = 12.sp, color = Gray.copy(alpha = 0.78f))
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Dark,
+            textAlign = TextAlign.Center
+        )
     }
+}
 
-    Spacer(modifier = Modifier.height(4.dp))
-    Text(
-        text = if (isMining) "Mining: ACTIVE" else "Mining: IDLE",
-        fontSize = 13.sp,
-        color = if (isMining) OlivePale else Gray,
-        fontWeight = FontWeight.SemiBold,
+@Composable
+private fun DividerMark() {
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        textAlign = TextAlign.Center
+            .height(42.dp)
+            .width(1.dp)
+            .background(Gray.copy(alpha = 0.35f))
     )
 }
 
-@Suppress("UNUSED_PARAMETER")
+@Composable
+private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(88.dp)
+            .clickable { onToggle() },
+        colors = CardDefaults.cardColors(containerColor = GoldBright),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .background(Dark.copy(alpha = 0.18f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "⌁", fontSize = 30.sp, color = Dark, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.width(18.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (isMining) "Stop Field" else "Enter Field",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Dark
+                )
+                Text(
+                    text = if (isMining) "Field is ACTIVE" else "Field is IDLE",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Dark.copy(alpha = 0.68f)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(OlivePale.copy(alpha = 0.9f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "›", fontSize = 22.sp, color = Dark)
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(14.dp))
+}
+
 @Composable
 private fun VerifiedCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(168.dp),
+            .height(210.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -336,21 +400,22 @@ private fun VerifiedCard(uiState: DashboardUiState) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Discovery",
-                    fontSize = 14.sp,
+                    text = "Device Field",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "Rolling",
-                    fontSize = 12.sp,
+                    text = "● Rolling",
+                    fontSize = 13.sp,
                     color = Gray
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Seen (10m): ${uiState.peersSeenLast10Minutes}",
+                text = "Seen (10m) ${uiState.peersSeenLast10Minutes}",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Dark
@@ -359,16 +424,16 @@ private fun VerifiedCard(uiState: DashboardUiState) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Nearby: ${uiState.peersNearby}",
+                text = "Nearby ${uiState.peersNearby}",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Dark
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Based on BLE discovery",
+                text = "Based on signed BLE discovery",
                 fontSize = 11.sp,
                 color = Gray
             )
@@ -381,13 +446,13 @@ private fun YieldCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(132.dp),
+            .height(144.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Mining Yield", fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(text = "CPOP Yield", fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(text = "Settles on sync", fontSize = 12.sp, color = Gray)
             }
             Text(text = "Total: ${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}", fontSize = 16.sp)
@@ -400,16 +465,16 @@ private fun MiningCountersCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(132.dp),
+            .height(144.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Mining Counters", fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(text = "Field Counters", fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(text = "Protocol Epoch ${uiState.epoch}", fontSize = 12.sp, color = Gray)
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = uiState.encountersThisEpoch.toString(), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
@@ -447,10 +512,10 @@ private fun RecentReceiptsCard(uiState: DashboardUiState) {
             .fillMaxWidth()
             .height(196.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Recent Receipts", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = "Proof Receipts", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(6.dp))
 
             if (uiState.recentReceipts.isEmpty()) {
@@ -480,7 +545,7 @@ private fun RecentReceiptsCard(uiState: DashboardUiState) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Previous", fontSize = 11.sp, color = Gray)
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -515,7 +580,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
             .fillMaxWidth()
             .height(232.dp),
         colors = CardDefaults.cardColors(containerColor = GoldPale),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -546,7 +611,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
                 ) {
                     Text(
                         text = "Wallet Preview",
-                        fontSize = 15.sp,
+                        fontSize = 20.sp,
                     )
                     Text(
                         text = "Preview future wallet connection and settlement",
@@ -672,7 +737,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
                 }
             },
             containerColor = GoldPale,
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(28.dp)
         )
     }
 }
