@@ -1,5 +1,8 @@
+// Backup of broken file
+
 package com.presenceprotocol.app.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -80,6 +83,14 @@ import com.presenceprotocol.app.ui.theme.LayerCardano
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Today
+import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.material.icons.rounded.Redeem
+import androidx.compose.material.icons.rounded.Sensors
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material3.Icon
 
 class MainActivity : ComponentActivity() {
 
@@ -151,18 +162,12 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 VerifiedCard(uiState)
                 Spacer(modifier = Modifier.height(12.dp))
                 YieldCard(uiState)
+
                 Spacer(modifier = Modifier.height(12.dp))
-                MiningCountersCard(uiState)
-                Spacer(modifier = Modifier.height(12.dp))
-                RecentReceiptsCard(uiState)
-                SettlementLayerCard(uiState)
-                Text(
-                    text = "Details & Logs",
-                    color = GoldLight,
-                    fontSize = 10.sp,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .clickable { viewModel.showDeveloperPanel(true) }
+
+                CollapsibleProtocolLayers(
+                    uiState = uiState,
+                    onOpenDeveloperPanel = { viewModel.showDeveloperPanel(true) }
                 )
             }
             if (uiState.showDeveloperPanel) {
@@ -255,6 +260,7 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             MetricTile(
+                icon = Icons.Rounded.Today,
                 label = "Today",
                 value = "+${String.format("%.1f", uiState.todayYield)} ${uiState.tokenSymbol}",
                 modifier = Modifier.weight(1f)
@@ -263,6 +269,7 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
             DividerMark()
 
             MetricTile(
+                icon = Icons.Rounded.Layers,
                 label = "Total",
                 value = "${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}",
                 modifier = Modifier.weight(1f)
@@ -271,6 +278,7 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
             DividerMark()
 
             MetricTile(
+                icon = Icons.Rounded.Redeem,
                 label = "Last reward",
                 value = "+${String.format("%.1f", uiState.lastReward)} ${uiState.tokenSymbol}",
                 modifier = Modifier.weight(1f)
@@ -281,6 +289,7 @@ private fun PresencePulseHero(uiState: DashboardUiState) {
 
 @Composable
 private fun MetricTile(
+    icon: ImageVector,
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -296,16 +305,12 @@ private fun MetricTile(
                 .background(OlivePale.copy(alpha = 0.65f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-    text = when (label) {
-        "Today" -> "◔"
-        "Total" -> "◈"
-        else -> "✦"
-    },
-    fontSize = 18.sp,
-    color = Olive,
-    fontWeight = FontWeight.Bold
-)
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = Olive,
+                modifier = Modifier.size(18.dp)
+            )
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = label, fontSize = 12.sp, color = Gray.copy(alpha = 0.78f))
@@ -351,7 +356,12 @@ private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
                     .background(Dark.copy(alpha = 0.18f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "⌁", fontSize = 30.sp, color = Dark, fontWeight = FontWeight.Bold)
+                Icon(
+                    imageVector = Icons.Rounded.Sensors,
+                    contentDescription = null,
+                    tint = Dark,
+                    modifier = Modifier.size(26.dp)
+                )
             }
 
             Spacer(modifier = Modifier.width(18.dp))
@@ -390,7 +400,7 @@ private fun VerifiedCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp),
+            .height(138.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
         shape = RoundedCornerShape(28.dp)
     ) {
@@ -401,8 +411,8 @@ private fun VerifiedCard(uiState: DashboardUiState) {
             ) {
                 Text(
                     text = "Device Field",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
@@ -416,7 +426,7 @@ private fun VerifiedCard(uiState: DashboardUiState) {
 
             Text(
                 text = "Seen (10m) ${uiState.peersSeenLast10Minutes}",
-                fontSize = 18.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Dark
             )
@@ -425,7 +435,7 @@ private fun VerifiedCard(uiState: DashboardUiState) {
 
             Text(
                 text = "Nearby ${uiState.peersNearby}",
-                fontSize = 18.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Dark
             )
@@ -446,16 +456,16 @@ private fun YieldCard(uiState: DashboardUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(144.dp),
+            .height(104.dp),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
         shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "CPOP Yield", fontSize = 14.sp, modifier = Modifier.weight(1f))
-                Text(text = "Settles on sync", fontSize = 12.sp, color = Gray)
+                Text(text = "Local Receipt Balance", fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(text = "Local only", fontSize = 12.sp, color = Gray)
             }
-            Text(text = "Total: ${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}", fontSize = 16.sp)
+            Text(text = "${String.format("%.1f", uiState.totalBalance)} ${uiState.tokenSymbol}", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -506,68 +516,236 @@ private fun formatReceiptAge(timestampMs: Long): String {
 }
 
 @Composable
+private fun CollapsibleProtocolLayers(
+    uiState: DashboardUiState,
+    onOpenDeveloperPanel: () -> Unit
+) {
+    var expandedLayer by remember { mutableStateOf<String?>(null) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        LayerAccordion(
+            title = "Field Counters",
+            subtitle = "${uiState.verifiedToday} verified · ${uiState.peersNearby} nearby",
+            expanded = expandedLayer == "counters",
+            onClick = {
+                expandedLayer = if (expandedLayer == "counters") null else "counters"
+            }
+        ) {
+            MiningCountersCard(uiState)
+        }
+        LayerAccordion(
+            title = "Encounter Receipts",
+            subtitle = if (uiState.recentReceipts.isEmpty())
+                "No local receipts yet"
+            else
+                "Latest ${uiState.recentReceipts.first().peerLabel}",
+            expanded = expandedLayer == "receipts",
+            onClick = {
+                expandedLayer = if (expandedLayer == "receipts") null else "receipts"
+            }
+        ) {
+            RecentReceiptsCard(uiState)
+        }
+
+        LayerAccordion(
+            title = "Settlement Readiness",
+            subtitle = "Wallet offline · settlement preview",
+            expanded = expandedLayer == "settlement",
+            onClick = {
+                expandedLayer = if (expandedLayer == "settlement") null else "settlement"
+            }
+        ) {
+            SettlementLayerCard(uiState)
+        }
+        LayerAccordion(
+            title = "Details & Logs",
+            subtitle = "Developer protocol state",
+            expanded = false,
+            onClick = onOpenDeveloperPanel
+        ) {}
+    }
+}
+
+@Composable
+private fun LayerAccordion(
+    title: String,
+    subtitle: String,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Cream.copy(alpha = 0.92f)
+        ),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick() },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = title,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Dark
+                    )
+
+                    Text(
+                        text = subtitle,
+                        fontSize = 11.sp,
+                        color = Gray
+                    )
+                }
+                Text(
+                    text = if (expanded) "−" else "+",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Gold
+                )
+            }
+
+            AnimatedVisibility(
+                visible = expanded
+            ) {
+                Column(
+                    modifier = Modifier.padding(top = 14.dp)
+                ) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun RecentReceiptsCard(uiState: DashboardUiState) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(196.dp),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = OlivePale),
         shape = RoundedCornerShape(28.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Proof Receipts", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(6.dp))
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "Encounter Receipts",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Dark
+            )
 
             if (uiState.recentReceipts.isEmpty()) {
-                Text(text = "No receipts yet", fontSize = 12.sp, color = Gray)
+                Text(
+                    text = "No local encounter receipts yet",
+                    fontSize = 12.sp,
+                    color = Gray
+                )
             } else {
                 val latest = uiState.recentReceipts.first()
 
-                Text(
-                    text = "Latest proof",
-                    fontSize = 11.sp,
-                    color = Gray
-                )
-                Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = latest.peerLabel, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Dark)
-                        Text(text = formatReceiptAge(latest.timestampMs), fontSize = 11.sp, color = Gray)
+                        Text(
+                            text = "Latest local receipt",
+                            fontSize = 11.sp,
+                            color = Gray
+                        )
+
+                        Text(
+                            text = latest.peerLabel,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Dark
+                        )
+
+                        Text(
+                            text = formatReceiptAge(latest.timestampMs),
+                            fontSize = 11.sp,
+                            color = Gray
+                        )
                     }
+
                     Text(
                         text = "+${String.format("%.2f", latest.reward)} ${uiState.tokenSymbol}",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Gold
                     )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Previous", fontSize = 11.sp, color = Gray)
-                Spacer(modifier = Modifier.height(4.dp))
 
-                uiState.recentReceipts.drop(1).take(4).forEach { item ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(text = item.peerLabel, fontSize = 12.sp, color = Dark)
-                            Text(text = formatReceiptAge(item.timestampMs), fontSize = 10.sp, color = Gray)
-                        }
-                        Text(
-                            text = "+${String.format("%.2f", item.reward)}",
-                            fontSize = 12.sp,
-                            color = Gold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ReceiptStatusChip("CBOR", Olive)
+                    ReceiptStatusChip("SIGNED", Gold)
+                    ReceiptStatusChip("LOCAL", Mid)
                 }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Receipt Anchor",
+                    fontSize = 10.sp,
+                    color = Gray
+                )
+
+                Text(
+                    text = uiState.anchorHash.take(18).ifBlank { "pending..." },
+                    fontSize = 11.sp,
+                    color = Dark,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Stored locally from signed BLE encounter events",
+                    fontSize = 11.sp,
+                    color = Gray
+                )
             }
         }
+    }
+}
+
+
+@Composable
+private fun ReceiptStatusChip(
+    label: String,
+    color: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(color.copy(alpha = 0.14f))
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = color
+        )
     }
 }
 
@@ -576,99 +754,78 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
     var showWalletPreview by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(232.dp),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = GoldPale),
         shape = RoundedCornerShape(28.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Wallet Preview", fontSize = 12.sp, color = Gold)
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Settlement Readiness",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Dark
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                LayerChip("Receipt Layer", LayerEncounter)
+                LayerChip("Wallet Offline", LayerMidnight)
+                LayerChip("Preview", LayerCardano)
             }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LayerChip("Mobile", LayerMobile)
-                LayerChip("Encounter", LayerEncounter)
-                LayerChip("Relay", LayerRelay)
+
+            Text(
+                text = "Encounter receipts are stored locally. Wallet confirmation and settlement remain future protocol layers.",
+                fontSize = 12.sp,
+                color = Mid
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column {
+                    Text(
+                        text = "Local Receipt Balance",
+                        fontSize = 11.sp,
+                        color = Gray
+                    )
+
+                    Text(
+                        text = String.format("%.1f %s", uiState.totalBalance, uiState.tokenSymbol),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Gold
+                    )
+                }
+
+                Text(
+                    text = "Settlement Offline",
+                    fontSize = 11.sp,
+                    color = Mid
+                )
             }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LayerChip("Midnight", LayerMidnight)
-                LayerChip("Cardano", LayerCardano)
-            }
+
             OutlinedButton(
                 onClick = { showWalletPreview = true },
                 modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, Olive),
+                border = BorderStroke(1.dp, Olive.copy(alpha = 0.35f)),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Olive
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "Wallet Preview",
-                        fontSize = 20.sp,
-                    )
-                    Text(
-                        text = "Preview future wallet connection and settlement",
-                        fontSize = 11.sp,
-                        color = Mid
-                    )
-                }
-            }
-
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Claimable", fontSize = 12.sp, color = Gray)
                 Text(
-                    text = String.format("%.1f %s", uiState.totalBalance, uiState.tokenSymbol),
-                    fontSize = 18.sp,
-                    color = Gold,
+                    text = "View Settlement Status",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                OutlinedButton(
-                    onClick = { showWalletPreview = true },
-                    modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, Olive),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Olive
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text(
-                        text = "Wallet Preview",
-                        fontSize = 13.sp,
-                    )
-                }
-
-                Button(
-                    onClick = { },
-                    enabled = false,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Olive,
-                        contentColor = GoldPale,
-                        disabledContainerColor = Olive.copy(alpha = 0.45f),
-                        disabledContentColor = GoldPale.copy(alpha = 0.75f)
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text(
-                        text = "Claim ${uiState.tokenSymbol}",
-                        fontSize = 13.sp,
-                    )
-                }
-            }
-
-            Text(text = "Tap Wallet Preview for future settlement view.", fontSize = 12.sp, color = Mid)
         }
     }
 
@@ -677,7 +834,7 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
             onDismissRequest = { showWalletPreview = false },
             title = {
                 Text(
-                    text = "Wallet Preview",
+                    text = "Settlement Readiness",
                     color = Olive,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -685,46 +842,48 @@ private fun SettlementLayerCard(uiState: DashboardUiState) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = "This panel previews a future settlement experience for Presence Protocol.",
+                        text = "Encounter receipts are currently stored locally.",
                         fontSize = 14.sp,
                         color = Dark
                     )
+
                     Text(
-                        text = "Status: Preview Only",
+                        text = "Settlement Status: Preview",
                         fontSize = 13.sp,
                         color = Olive,
                         fontWeight = FontWeight.SemiBold
                     )
+
                     Text(
-                        text = "Connection: Not Available Yet",
+                        text = "Wallet Layer: Offline",
                         fontSize = 13.sp,
                         color = Mid
                     )
+
                     Text(
-                        text = "Claim Flow: Disabled",
+                        text = "Claiming: Inactive",
                         fontSize = 13.sp,
                         color = Mid
                     )
+
                     Text(
-                        text = "Mining remains separate from wallet and settlement logic.",
+                        text = "No wallet claim is active in this MVP.",
                         fontSize = 13.sp,
                         color = Mid
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+
                     Button(
                         onClick = { },
                         enabled = false,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Olive,
-                            contentColor = GoldPale,
                             disabledContainerColor = Olive.copy(alpha = 0.45f),
                             disabledContentColor = GoldPale.copy(alpha = 0.75f)
                         ),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
-                            text = "Connect Wallet",
+                            text = "Settlement Offline",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
