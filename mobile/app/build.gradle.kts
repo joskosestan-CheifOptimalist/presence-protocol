@@ -1,9 +1,27 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
 
+val keystoreProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["PRESENCE_STORE_FILE"] as String)
+            storePassword = keystoreProperties["PRESENCE_STORE_PASSWORD"] as String
+            keyAlias = keystoreProperties["PRESENCE_KEY_ALIAS"] as String
+            keyPassword = keystoreProperties["PRESENCE_KEY_PASSWORD"] as String
+        }
+    }
+
     namespace = "com.presenceprotocol.app"
     compileSdk = 35
 

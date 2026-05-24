@@ -548,6 +548,8 @@ private fun CollapsibleProtocolLayers(
             }
         ) {
             RecentReceiptsCard(uiState)
+
+            CpopIssuanceTelemetryCard(uiState)
         }
 
         LayerAccordion(
@@ -626,6 +628,95 @@ private fun LayerAccordion(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CpopIssuanceTelemetryCard(uiState: DashboardUiState) {
+    val avgReward = if (uiState.totalEncounters > 0) {
+        uiState.totalBalance / uiState.totalEncounters
+    } else {
+        0.0
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = GoldPale),
+        shape = RoundedCornerShape(28.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "CPOP Issuance",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Dark
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                IssuanceMetric(
+                    label = "Issued",
+                    value = String.format("%.2f", uiState.totalBalance),
+                    modifier = Modifier.weight(1f)
+                )
+                IssuanceMetric(
+                    label = "Receipts",
+                    value = uiState.totalEncounters.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                IssuanceMetric(
+                    label = "Avg",
+                    value = String.format("%.2f", avgReward),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Text(
+                text = "Local protocol accounting only — not on-chain minting.",
+                fontSize = 11.sp,
+                color = Gray,
+                fontWeight = FontWeight.Medium
+            )
+
+            if (uiState.anchorHash.isNotBlank()) {
+                Text(
+                    text = "Anchor ${uiState.anchorHash.take(18)}…",
+                    fontSize = 11.sp,
+                    color = Mid
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IssuanceMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(Cream.copy(alpha = 0.72f), RoundedCornerShape(18.dp))
+            .padding(vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Dark
+        )
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = Gray
+        )
     }
 }
 

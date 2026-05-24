@@ -33,7 +33,7 @@
     <application
         android:name=".PresenceApp"
         android:allowBackup="false"
-        android:label="Presence Protocol"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Presence">
         <activity
