@@ -160,6 +160,8 @@ private fun PresenceApp(viewModel: DashboardViewModel) {
                 Spacer(modifier = Modifier.height(16.dp))
                 PrimaryToggle(isMining = uiState.isMining) { viewModel.toggleMining() }
                 VerifiedCard(uiState)
+
+                ProtocolStateCard()
                 Spacer(modifier = Modifier.height(12.dp))
                 YieldCard(uiState)
 
@@ -393,6 +395,49 @@ private fun PrimaryToggle(isMining: Boolean, onToggle: () -> Unit) {
     }
 
     Spacer(modifier = Modifier.height(14.dp))
+}
+
+@Composable
+private fun ProtocolStateCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = OlivePale),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "Protocol State",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Dark
+            )
+
+            ProtocolStateRow("BLE receipts", "active")
+            ProtocolStateRow("Persistence", "active")
+            ProtocolStateRow("CPOP accounting", "local")
+            ProtocolStateRow("Settlement", "not on-chain")
+            ProtocolStateRow("Midnight", "not active")
+        }
+    }
+}
+
+@Composable
+private fun ProtocolStateRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = Dark)
+        Text(
+            value,
+            color = Dark,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
 }
 
 @Composable
