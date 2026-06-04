@@ -34,6 +34,7 @@ data class LedgerStats(
 
 interface MiningLedger {
     fun observeStats(): Flow<LedgerStats>
+    fun currentStats(): LedgerStats
     fun recordEncounter(peerId: String, yieldIncrement: Double = 1.0): Boolean
     fun updateEpoch(epoch: Int) {}
 }
@@ -64,6 +65,8 @@ class InMemoryMiningLedger : MiningLedger {
     }
 
     override fun observeStats(): Flow<LedgerStats> = stats.asStateFlow()
+
+    override fun currentStats(): LedgerStats = stats.value
 
     override fun recordEncounter(peerId: String, yieldIncrement: Double): Boolean {
         val now = System.currentTimeMillis()

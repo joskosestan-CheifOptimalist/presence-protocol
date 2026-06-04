@@ -67,6 +67,10 @@ class PersistentMiningLedger(private val context: Context) : MiningLedger {
             )
         }
 
+    override fun currentStats(): LedgerStats = runBlocking {
+        observeStats().first()
+    }
+
     override fun recordEncounter(peerId: String, yieldIncrement: Double): Boolean = runBlocking {
         val prefs = context.ds.data.first()
         val now = System.currentTimeMillis()

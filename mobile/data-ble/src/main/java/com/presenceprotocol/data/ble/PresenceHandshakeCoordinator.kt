@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice
 import android.os.SystemClock
 import android.util.Log
 import com.presenceprotocol.domain.MiningLedger
+import com.presenceprotocol.domain.tokenomics.CpopHarmonicIssuanceEngine
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
@@ -233,10 +234,21 @@ class PresenceHandshakeCoordinator(
             return
         }
 
-        if (!miningLedger.recordEncounter(rewardPeerId)) {
-    android.util.Log.d("PP","BLOCKED_POLICY") // ALLOW_AFTER_COOLDOWN_PATCH
-    return
-}
+        val currentStats = miningLedger.currentStats()
+        val issuance = CpopHarmonicIssuanceEngine.calculateReward(
+            encountersThisEpoch = currentStats.encountersThisEpoch,
+            verifiedToday = currentStats.verifiedToday
+        )
+
+        Log.d(
+            TAG,
+            "CPOP_HARMONIC_ISSUANCE peer=$rewardPeerId reward=${issuance.reward} base=${issuance.baseReward} frequencyMultiplier=${issuance.frequencyMultiplier} dampingMultiplier=${issuance.dampingMultiplier}"
+        )
+
+        if (!miningLedger.recordEncounter(rewardPeerId, issuance.reward)) {
+            android.util.Log.d("PP","BLOCKED_POLICY") // ALLOW_AFTER_COOLDOWN_PATCH
+            return
+        }
         lastLedgerCreditMs[rewardPeerId] = now
         peers[peerId]?.lastSuccessMs = now
         Log.d(TAG, "PIPE_LEDGER_CREDIT peer=$rewardPeerId encounterId=${ticket.encounterId} stage=ledger_credit")
