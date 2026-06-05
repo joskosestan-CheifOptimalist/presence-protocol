@@ -8,6 +8,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.presenceprotocol.domain.MiningLedger
 import com.presenceprotocol.domain.tokenomics.CpopHarmonicIssuanceEngine
+import com.presenceprotocol.domain.anchor.CpopAnchorPayloadExporter
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
@@ -252,6 +253,14 @@ class PresenceHandshakeCoordinator(
         lastLedgerCreditMs[rewardPeerId] = now
         peers[peerId]?.lastSuccessMs = now
         Log.d(TAG, "PIPE_LEDGER_CREDIT peer=$rewardPeerId encounterId=${ticket.encounterId} stage=ledger_credit")
+        val anchorStats = miningLedger.currentStats()
+        val anchorPayload = CpopAnchorPayloadExporter.fromLedgerStats(anchorStats)
+
+        Log.d(
+            TAG,
+            "CPOP_ANCHOR_JSON ${anchorPayload.toJson()}"
+        )
+
         encounterStateMachine?.let { sm ->
             try {
                 val payload = com.presenceprotocol.domain.encounter.CanonicalEncounterPayload(
