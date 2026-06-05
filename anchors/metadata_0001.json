@@ -1,0 +1,14 @@
+{
+  "674": {
+    "protocol": "Presence Protocol",
+    "token": "CPOP",
+    "type": "anchor",
+    "privacy": "public-proof-private-encounter",
+    "anchorHash": "eff5f5e20de0214cf4543d15254724c0519dca43e1545e13403692fc8648e0d3",
+    "rewardClass": "harmonic_bonus",
+    "validityStatus": "valid_local_receipt_batch",
+    "verifiedToday": 2,
+    "totalEncounters": 2,
+    "timestampMs": 1780618221077
+  }
+}
